@@ -1,0 +1,422 @@
+
+body {
+    display: flex;
+    flex-direction: column;
+    margin: 0;
+    --primary-color: #206505;
+    --primary-bg: #3c8715;
+    --hover-bg: #689451;
+    --invert-color: white;
+    --color-danger: #991f1f;
+    background-color: #becdad;
+    color: var(--primary-color);
+    height: 100vh;
+}
+nav {
+    /* background-color: lightblue; */
+    display: flex;
+    flex-direction: row;
+    padding: 10px;
+    align-items: center;
+    gap: 10px;
+    border-bottom: 3px solid var(--primary-color);
+}
+nav img {
+    height: 40px;
+    display: none;
+}
+nav h1 {
+    margin: 0;
+    flex-grow: 1;
+}
+nav h4 {
+    margin: 0;
+}
+sidebar {
+    width: 250px;
+    min-width: 250px;
+    border-right: 1px solid var(--primary-color);
+}
+sidebar ul {
+    list-style: none;
+    padding: 0 10px;
+}
+sidebar ul li {
+    border-radius: 5px;
+    padding: 0.7em;
+    margin: 2px 5px 2px 0;
+    cursor: pointer;
+}
+sidebar ul li.active {
+    background: var(--primary-bg);
+    color: var(--invert-color);
+}
+sidebar ul li:hover {
+    background: var(--hover-bg);
+    color: var(--invert-color);
+}
+.main-area {
+    display: flex;
+    flex-direction: row;
+    flex-grow: 1;
+    height: 0;
+}
+.content-area {
+    flex-grow: 1;
+    height: 100%;
+    overflow-y: auto;
+}
+.content-area>div {
+    display: none;
+}
+thead tr {
+    background-color: var(--primary-bg);
+}
+tbody:not([data-count='0']) tr[data-type=empty-label], tbody[data-loading=true] tr[data-type=empty-label] {
+    display: none;
+}
+tbody[data-loading=false] tr[data-type=loading-label] {
+    display: none;
+}
+th {
+    padding: 10px;
+    background: var(--primary-color);
+    color: var(--invert-color);
+}
+td {
+    padding: 10px 5px;
+    text-align: center;
+}
+table {
+    margin: 20px;
+}
+img.screenshot {
+    display: none;
+}
+.container {
+    padding: 20px;
+}
+h1 {
+    font-size: 30px;
+}
+h2 {
+    font-size: 22px;
+}
+.card {
+    display: inline-block;
+    padding: 15px;
+    border-radius: 7px;
+    border: 1px solid var(--primary-color);
+    box-shadow: 2px 2px 6px gray;
+}
+.row {
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+}
+.row-same {
+    width: 0px;
+    flex-grow: 1;
+}
+.service-creator::before, .service-bidder::before, .service-email::before {
+    content: 'Stopped';
+    background-color: var(--color-danger);
+    border: 2px solid var(--primary-color);
+    color: var(--invert-color);
+    padding: 10px;
+    border-radius: 10px;
+    display: inline;
+}
+
+.service-creator.status-running::before, .service-bidder.status-running::before, .service-email.status-running::before {
+    content: 'Running';
+    background-color: green;
+    border: 2px solid var(--primary-color);
+    color: var(--invert-color);
+    padding: 10px;
+    border-radius: 10px;
+    display: inline;
+}
+
+.alert {
+    display: none;
+    position: absolute;
+    background-color: black;
+    border-radius: 12px;
+    padding: 8px;
+    color: white;
+    font-size: 30px;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+.os-stats {
+    align-items: center;
+    justify-content: center;
+    padding: 40px 0;                
+}
+.rotator {
+    border-radius: 50%;
+    width: 150px;
+    height: 150px;
+    border: 6px solid var(--primary-color);
+    position: relative;
+}
+.stats {
+    border-radius: 14px;
+    width: 350px;
+    height: 50px;
+    border: 6px solid var(--primary-color);
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 0 1em;
+}
+.stats h1 {
+    margin: 0;
+    width: 100%;
+    display: flex;
+}
+.stats h1 span {
+    flex-grow: 1;
+    text-align: right;
+}
+.stats-container {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.3em;
+}
+.cpu, .mem { 
+    font-size: 40px;
+}
+.cpu, .mem, .bid, .account, .project {
+    text-shadow: 1px 1px 5px #049b10;
+    font-family: sans-serif;
+    font-weight: bold;
+}
+.cpu::after, .mem::after {
+    content: '%';
+    display: inline;
+}
+.ab-center {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+}
+.text-center {
+    text-align: center;
+}
+.os-stats .rotator h1 {
+    margin-top: 0;
+    margin-bottom: 10px;
+}
+.hidden {
+    display: none !important;
+}
+.screen-viewer {
+    position: fixed;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    background: rgba(0,0,0,0.7);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    padding: 20px;
+}
+.screen {
+    flex-grow: 1;
+    aspect-ratio: 1;
+    background: gray;
+}
+button {
+    border-radius: 1em;
+    border: 1px solid var(--primary-color);
+    padding: 0.5em 1em;
+    font-size: 1.2em;
+    background-color: transparent;
+    cursor: pointer;
+}
+button.active {
+    background-color: var(--primary-color);
+    color: var(--invert-color);
+}
+button:hover {
+    background-color: var(--hover-bg);
+    color: var(--invert-color);
+}
+tag {
+    background-color: var(--primary-bg);
+    color: var(--invert-color);
+    border-radius: 0.5em;
+    padding: 0.2em 0.7em;
+    display: inline-block;
+    margin-right: 1em;
+    margin-bottom: 1em;
+}
+input[type=checkbox] {
+    width: 1em;
+    height: 1em;
+}
+
+#files tr img {
+    width: 100px;
+    height: 100px;
+}
+
+.logout {
+    text-decoration: none;
+    text-shadow: 1px 1px gray;
+}
+
+.search-box {
+    /* float: right; */
+}
+
+select, input {
+    font-size: 1.3em;
+    border-radius: 0.4em;
+    padding: 0.4em;
+}
+
+.email-wrapper {
+    width: 10em;
+    line-break: anywhere;
+}
+
+.ellipsed-text {
+    max-height: 50px; /* Specify your desired height */
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 3; /* Number of lines to display before ellipsis */
+    -webkit-box-orient: vertical;
+    white-space: pre-wrap;
+}
+
+.ellipsed-text.open {
+    text-overflow: initial;
+    max-height: fit-content;
+    overflow: initial;
+    -webkit-line-clamp: initial;
+}
+#settings input[type=text], #settings textarea {
+    width: 100%;
+}
+#measure_result {
+    white-space: pre;
+}
+tr:nth-child(2n) {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+.loader {
+    display: inline-block;
+    position: fixed;
+    width: 30px;
+    height: 30px;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    border-radius: 100%;
+    border-top: 10px solid var(--primary-color);
+    border-left: 10px solid var(--invert-color);
+    border-right: 10px solid var(--invert-color);
+    border-bottom: 10px solid var(--primary-color);
+    animation: rotator 0.5s linear infinite;
+}
+@keyframes rotator {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+.line-through {
+    text-decoration: line-through;
+}
+
+#role-modal form {
+    position: fixed;
+    box-shadow: 3px 3px 22px black;
+    background: white;
+    left: 100px;
+    top: 100px;
+    bottom: 100px;
+    right: 100px;
+    border-radius: 10px;
+    padding: 20px;
+    overflow-y: auto;
+}
+
+#role-modal .overlay {
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    left: 0;
+    top: 0;
+    background: black;
+    opacity: 0.3;
+}
+#role-modal div {
+    display: inline-block;
+    padding: 0 10px 10px 0;
+    box-sizing: border-box;
+}
+
+div.col-50 {
+    width: 50%;
+}
+
+#role-modal div.vertical {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+#role-modal div.horizontal {
+    display: flex;
+    flex-direction: row;
+    padding-left: 50px;
+}
+#role-modal .col-50 input {
+    width: 70%;
+}
+
+#role-modal .col-50 label {
+    width: 30%;
+    display: inline-block;
+}
+
+#loglist {
+    white-space: pre;
+}
+
+#creator-status, #jobseeker-status {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+#creator-status.error, #jobseeker-status.error {
+    color: red;
+}
+
+div[status="3. Action Required"] {
+    color: red;
+}
+
+div[status="2. Out of Connect"] {
+    color: yellow;
+}
+
+div[status="1. Completed"] {
+    color: green;
+}

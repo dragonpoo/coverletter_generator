@@ -1,0 +1,6 @@
+node_modules
+package-lock.json
+user_data
+/uploads/screenshot
+.vercel
+chrome-win64

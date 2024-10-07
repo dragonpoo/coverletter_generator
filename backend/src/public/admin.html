@@ -1,0 +1,425 @@
+<html>
+    <head>
+        <title>Upwork Account Manager Pro</title>
+        <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+        <link rel="stylesheet" href="/css/style.css"></link>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js"></script>
+        <script src="https://cdn.socket.io/4.2.0/socket.io.min.js"></script>
+    </head>
+    <body style="display: none;" onkeypress="onKeyPress()">
+        <nav><a href="/"><img src="/img/upwork.png" /></a><h1>Account Manager</h1><h4 class="profile email"></h4><a title="Logout" href="#" class="logout">👉</a></nav>
+        <section class="main-area">
+            <sidebar>
+                <ul>
+                    <li data-target="dashboard">Dashboard</li>
+                    <hr>
+                    <li data-target="accounts">UP Accounts</li>
+                    <li data-target="bids">Bids</li>
+                    <li data-target="candidates">Candidate Emails</li>
+                    <li data-target="trends">Trends</li>
+                    <li data-target="files">Files</li>
+                    <li data-target="roles">Roles</li>
+                    <li data-target="gpt">GPT</li>
+                    <li data-target="titles">Titles</li>
+                    <li data-target="logs">Logs</li>
+                    <hr>
+                    <li data-target="settings">Settings</li>
+                </ul>
+            </sidebar>
+            <section class="content-area">
+                <div id="dashboard" class="container">
+                    <h1>DASHBOARD</h1>
+                    <hr>
+                    <div class="row os-stats">
+                        <div class="stats-container">
+                            <div class="stats">
+                                <h1>BIDS: <span class="bid"></span></h1>
+                            </div>
+                            <div class="stats">
+                                <h1>ACCOUNTS: <span class="account"></span></h1>
+                            </div>
+                            <div class="stats">
+                                <h1>PROJECTS: <span class="project"></span></h1>
+                            </div>
+                        </div>
+                        <div class="rotator">
+                            <div class="ab-center">
+                                <h1>CPU</h1>
+                                <div class="cpu"></div>
+                            </div>
+                        </div>
+                        <div class="rotator">
+                            <div class="ab-center">
+                                <h1>RAM</h1>
+                                <div class="mem"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="card row-same">
+                            <h2>Email Checking Service</h2>
+                            <h4>Status: <span class="service-email"></span></h4>
+                            <div>
+                                <button onclick="startServiceEmail()">Start</button>
+                                <button onclick="stopServiceEmail()">Stop</button>
+                                <button class="hidden" onclick="getScreenshot('email')">📺</button>
+                            </div>
+                        </div>
+                        <div class="card row-same">
+                            <h2>Creator Service</h2>
+                            <h4>Status: <span class="service-creator"></span></h4>
+                            <div id="creator-status"></div>
+                            <div>
+                                <button onclick="startServiceCreator()">Start</button>
+                                <button onclick="stopServiceCreator()">Stop</button>
+                                <button class="hidden" onclick="getScreenshot('creator')">📺</button>
+                            </div>
+                        </div>
+                        <div class="card row-same">
+                            <h2>Auto-Bid Service</h2>
+                            <h4>Status: <span class="service-bidder"></span></h4>
+                            <div id="jobseeker-status"></div>
+                            <div>
+                                <button onclick="startServiceBidder()">Start</button>
+                                <button onclick="stopServiceBidder()">Stop</button>
+                                <button class="hidden" onclick="getScreenshot('bidder')">📺</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <h4>Draw statistics graph</h4>
+                        <select id="stat-param-table">
+                            <option value='#'>--Select Table--</option>
+                            <option value='account#created_at,suspended_at'>Account</option>
+                            <option value='bid#created_at'>Bid</option>
+                            <option value='jobs#created_at'>Jobs</option>
+                        </select>
+                        <select id="stat-param-delta">
+                            <option value=''>--Select Delta--</option>
+                            <option value='10'>By Day</option>
+                            <option value='13'>By Hour</option>
+                            <option value='16'>By Minute</option>
+                        </select>
+                        <button onclick="drawStatGraph()">Draw</button>
+                    </div>
+                    <canvas id="myChart" style="width:100%;max-width:700px" tabindex="0"></canvas>
+                    <div class="measurement">
+                        <h2>Measurement</h2>
+                        <input type="text" placeholder="Measurement Type" id="measure_type" />
+                        <button onclick="measureStart()">Start</button>
+                        <button onclick="measureStop()">Stop</button>
+                        <button onclick="getMeasure()">View</button>
+                        <div id="measure_result"></div>
+                    </div>
+                </div>
+                <div id="accounts" class="container">
+                    <h1>ACCOUNTS</h1>
+                    <hr>
+                    <h4>Total 0 item(s)</h4>
+                    <div style="display: inline-block">
+                        <div class="search-box">
+                            <input onchange="filterAccounts(this.value)" type="text" class="search-input" placeholder="Search keywords here ... " />
+                            <button onclick="downloadAccountCSV()">📩</button>
+                        </div>
+                        <input type="checkbox" id="gotmessagedonly"><label for="gotmessagedonly">Messaged Only</label>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>No</th>
+                                <th>Full Name</th>
+                                <th>Email</th>
+                                <th>Password</th>
+                                <th>Professional Title</th>
+                                <th>Country</th>
+                                <th>Status</th>
+                                <th><div>Created At</div><hr><div>Suspended At</div></th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody data-count="0">
+                            <tr data-type="empty-label">
+                                <td colspan="9">No Data to display here.</td>
+                            </tr>
+                            <tr data-type="loading-label">
+                                <td colspan="9">Loading Data...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <pagination data-target="accounts"></pagination>
+                </div>
+                <div id="bids" class="container">
+                    <h1>BIDS</h1>
+                    <hr>
+                    <h4>Total 0 item(s)</h4>
+                    <div style="display: inline-block">
+                        <div class="search-box">
+                            <input onchange="filterBids(this.value)" type="text" class="search-input" placeholder="Search keywords here ... " />
+                            <button onclick="downloadBidCSV()">📩</button>
+                        </div>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>No</th>
+                                <th>Email<hr>Password</th>
+                                <th>Job Title</th>
+                                <th>Coverletter</th>
+                                <th><div>Date</div><hr><div>Status</div></th>
+                            </tr>
+                        </thead>
+                        <tbody data-count="0">
+                            <tr data-type="empty-label">
+                                <td colspan="7">No Data to display here.</td>
+                            </tr>
+                            <tr data-type="loading-label">
+                                <td colspan="7">Loading Data...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <pagination data-target="bids"></pagination>
+                </div>
+                <div id="candidates" class="container">
+                    <h1>CANDIDATE EMAILS</h1>
+                    <hr>
+                    <h4>Total 0 item(s)</h4>
+                    <div style="display: inline-block">
+                        <div class="search-box">
+                            <input onchange="filterEmails(this.value)" type="text" class="search-input" placeholder="Search keywords here ... " />
+                        </div>
+                        <div class="email-generator">
+                            <input type="text" class="email-input" placeholder="Base email address here to generate from... " onchange="generateEstimate()" />
+                            <button onclick="generateCandidates()">Generate</button>
+                            <button onclick="removeCandidates()">Remove All</button>
+                        </div>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>No</th>
+                                <th>Email</th>
+                                <th>Exclude</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody data-count="0">
+                            <tr data-type="empty-label">
+                                <td colspan="4">No Data to display here.</td>
+                            </tr>
+                            <tr data-type="loading-label">
+                                <td colspan="4">Loading Data...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <pagination data-target="candidates"></pagination>
+                </div>
+                <div id="trends" class="container">
+                    <h1>TRENDS</h1>
+                    <hr>
+                    <div class="skill"></div>
+                    <pagination data-target="trends"></pagination>
+                </div>
+                <div id="files" class="container">
+                    <h1>FILES</h1>
+                    <hr>
+                    <h4>Total 0 item(s)</h4>
+                    <form class="card" action="/file" method="POST" enctype="multipart/form-data">
+                        <input type="file" name="file" required>
+                        <button type="submit">Upload</button>
+                    </form>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>No</th>
+                                <th>File</th>
+                                <th>Account Created</th>
+                                <th>Got Messaged</th>
+                                <th>Enabled</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody data-count="0">
+                            <tr data-type="empty-label">
+                                <td colspan="6">No Data to display here.</td>
+                            </tr>
+                            <tr data-type="loading-label">
+                                <td colspan="6">Loading Data...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <pagination data-target="files"></pagination>
+                </div>
+                <div id="roles" class="container">
+                    <h1>ROLES</h1>
+                    <hr>
+                    <h4>Total 0 item(s)</h4>
+                    <div style="display: inline-block">
+                        <div class="search-box">
+                            <input onchange="filterRoles(this.value)" type="text" class="search-input" placeholder="Search keywords here ... " />
+                        </div>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>No</th>
+                                <th>Title</th>
+                                <th>Hourly Rate</th>
+                                <th>Skills</th>
+                                <th><div>Account Created</div><hr><div>Got Messaged</div></th>
+                                <th>Enabled</th>
+                            </tr>
+                        </thead>
+                        <tbody data-count="0">
+                            <tr data-type="empty-label">
+                                <td colspan="6">No Data to display here.</td>
+                            </tr>
+                            <tr data-type="loading-label">
+                                <td colspan="6">Loading Data...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <pagination data-target="roles"></pagination>
+                </div>
+                <div id="gpt" class="container">
+                    <h1>GPT</h1>
+                    <hr>
+                    <h1>Coverletter Generator</h1>
+                    <input id="freelancer-name" placeholder="Full Name" onchange="onCoverletterNameChange()" /> <select id="convertstyle" onchange="changeStyle()"><option value="0">No convert</option></select> <select id="gptModel" onchange="changeModel()"></select><select id="english-level" onchange="changeEnglishLevel()"><option value="">--English Level--</option><option value="basic">Basic</option><option value="conversational">Conversational</option><option value="native">Native</option></select> <input type="checkbox" id="gpt-simple" onchange="changeSimple()" /> <label for="gpt-simple">Simple</label>
+                    <button id="generateAnswer" onclick="generateAnswer()">Generate Answer</button><br><br>
+                    <div style="display: flex; flex-direction: row; gap: 1em;">
+                        <div style="width: 0 !important; flex-grow: 1; display: inline-flex; flex-direction: column; ">
+                            <input id="company-detail" placeholder="Your company detail" type="text" onchange="onCompanyDetailChange()" />
+                            <textarea id="project-description" placeholder="Project Description" rows="20" cols="100%" onchange="onCoverletterDescChange()"></textarea>
+                            <button id="copyPrompt" onclick="copyPrompt()">Copy Prompt</button>
+                        </div>
+                        <div style="width: 0 !important; flex-grow: 1; display: inline-flex; flex-direction: column; ">
+                            <textarea id="coverletter" placeholder="Coverletter" rows="20" cols="100%"></textarea>
+                            <button id="copyCoverletter" onclick="copyCoverletter()">Copy Coverletter</button>
+                        </div>
+                    </div>
+                    <hr>
+                    <h1>Profile Generator</h1>
+                    <button id="generateName" onclick="generateName()">Generate Name</button>
+                </div>
+                <div id="titles" class="container">
+                    <h1>Titles</h1>
+                    <ul>
+                        <li>Front-End Developer | HTML, CSS, JavaScript</li>
+                        <li>Back-End Developer | Node.js, Ruby, Python</li>
+                        <li>Full Stack Developer | MEAN Stack, MERN Stack</li>
+                        <li>JavaScript Developer | React, Angular, Vue.js</li>
+                        <li>Mobile App Developer | Swift, Kotlin, React Native</li>
+                        <li>iOS Developer | Swift, Objective-C, Core Data</li>
+                        <li>Android Developer | Kotlin, Java, Android SDK</li>
+                        <li>Web Developer | PHP, Laravel, Symfony</li>
+                        <li>Python Developer | Django, Flask, Pyramid</li>
+                        <li>Ruby on Rails Developer | Ruby, Rails, RSpec</li>
+                        <li>Java Developer | Spring, Hibernate, Maven</li>
+                        <li>.NET Developer | C#, ASP.NET, Entity Framework</li>
+                        <li>Node.js Developer | Express, Socket.IO, Meteor</li>
+                        <li>PHP Developer | Zend, Yii, CakePHP</li>
+                        <li>Front-End Web Developer | Bootstrap, SASS, Gulp</li>
+                        <li>UI Developer | JavaScript, jQuery, AJAX</li>
+                        <li>API Developer | REST, GraphQL, SOAP</li>
+                        <li>WordPress Developer | PHP, MySQL, WooCommerce</li>
+                        <li>E-commerce Developer | Magento, Shopify, PrestaShop</li>
+                        <li>Drupal Developer | PHP, Drupal API, Modules</li>
+                        <li>Software Engineer | Java, Scala, Python</li>
+                        <li>Application Developer | C++, Qt, Visual Studio</li>
+                        <li>DevOps Engineer | AWS, Docker, Jenkins</li>
+                        <li>Cloud Developer | Azure, AWS, GCP</li>
+                        <li>React Developer | Redux, Hooks, Context API</li>
+                        <li>Angular Developer | TypeScript, RxJS, NgRx</li>
+                        <li>Vue.js Developer | Vuex, Nuxt.js, Vuetify</li>
+                        <li>MEAN Stack Developer | MongoDB, Express.js, Angular, Node.js</li>
+                        <li>MERN Stack Developer | MongoDB, Express.js, React, Node.js</li>
+                        <li>LAMP Stack Developer | Linux, Apache, MySQL, PHP</li>
+                        <li>Cross-Platform Developer | Xamarin, Cordova, Ionic</li>
+                        <li>Progressive Web App Developer | Service Workers, Manifest</li>
+                        <li>Web Application Developer | ASP.NET, Silverlight, Blazor</li>
+                        <li>Scala Developer | Play Framework, Akka, SBT</li>
+                        <li>Kotlin Developer | Coroutines, Jetpack, Gradle</li>
+                        <li>Swift Developer | Combine, SwiftUI, ARKit</li>
+                        <li>Objective-C Developer | Cocoa Touch, Core Animation</li>
+                        <li>Game Developer | Unity, C#, Unreal Engine</li>
+                        <li>Blockchain Developer | Ethereum, Solidity, Smart Contracts</li>
+                        <li>Embedded Systems Developer | C, C++, Microcontrollers</li>
+                        <li>Security Software Developer | OWASP, Cryptography, Penetration Testing</li>
+                        <li>Systems Developer | Linux, Bash, System Administration</li>
+                        <li>Database Developer | SQL, NoSQL, Oracle</li>
+                        <li>Performance Engineer | Load Testing, Profiling, Optimization</li>
+                        <li>AR/VR Developer | Oculus SDK, Unity3D, WebVR</li>
+                        <li>Server-Side Developer | Go, Erlang, Elixir</li>
+                        <li>Front-End Engineer | Webpack, Babel, Jest</li>
+                        <li>Backend API Engineer | Node.js, Koa, Fastify</li>
+                        <li>Mobile UI Developer | Sketch, Zeplin, Figma (for prototyping)</li>
+                        <li>Front-End Architect | Design Systems, Micro-Frontends, Scalability</li>
+                    </ul>
+                </div>
+                <div id="logs" class="container">
+                    <h1>LOGS</h1>
+                    <hr>
+                    <div id="loglist"></div>
+                </div>
+                <div id="settings" class="container">
+                    <h1>SETTINGS</h1>
+                    <hr>
+                    <i>After Saving, please restart services for settings to take effect.</i><br>
+                    <div style="display: inline-block; width: 350px;">
+                        <h3>Email Service</h3>
+                        <h4>Server URL</h4>
+                        <input type="text" name="email-server-url" />
+                        <h4>User Name</h4>
+                        <input type="text" name="email-username" />
+                        <h4>Password</h4>
+                        <input type="text" name="email-password" />
+                    </div>
+                    <div style="display: inline-block; width: 350px;">
+                        <h4>English Level</h4>
+                        <select name="english-level">
+                            <option value="">--Select--</option>
+                            <option value="3">Fluent</option>
+                            <option value="4">Native or Bilingual</option>
+                        </select>
+                        <!-- <h3>Notification</h3> -->
+                        <h4>Additional Notification Emails</h4>
+                        <input type="text" name="additional-receive-emails" placeholder="seperate emails by commas" />
+                        <h4>Headless Mode</h4>
+                        <input type="checkbox" name="headless-email" id="settings-check-headless-email" placeholder="Headless Mode" /> <label for="settings-check-headless-email">Email Checker</label><br>
+                        <input type="checkbox" name="headless-creater" id="settings-check-headless-creater" placeholder="Headless Mode" /> <label for="settings-check-headless-creater">Account Creater</label><br>
+                        <input type="checkbox" name="headless-bidder" id="settings-check-headless-bidder" placeholder="Headless Mode" /> <label for="settings-check-headless-bidder">Auto Bidder</label><br>
+                        <input type="checkbox" name="headless-jobseeker" id="settings-check-headless-jobseeker" placeholder="Headless Mode" /> <label for="settings-check-headless-jobseeker">Job Seeker</label><br>
+                    </div>
+                    <h4>Job Search URL</h4>
+                    <input type="text" name="job-url" />
+                    <h4>Coverletter generation prompt</h4>
+                    <h4>Available placeholders: <tag>{{project.title}}</tag><tag>{{project.description}}</tag><tag>{{user.firstname}}</tag><tag>{{user.lastname}}</tag><tag>{{user.pastwork}}</tag></h4>
+                    <textarea name="prompt-cletter" rows="10" cols="80"></textarea>
+                    <hr>
+                    <div>
+                        <button onclick="saveSettings()">Save</button>
+                    </div>
+                </div>
+            </section>
+        </section>
+        <div class="alert"></div>
+        <div class="screen-viewer hidden">
+            <img class="screen" />
+            <div class="button-group">
+                <button class="d50" dim="50">50 x 50</button>
+                <button class="d100" dim="100">100 x 100</button>
+                <button class="d400" dim="400">400 x 400</button>
+                <button class="d1000" dim="1000">1000 x 1000</button>
+                <button class="popup">=&gt;</button>
+            </div>
+        </div>
+        <div class="loader hidden"></div>
+        <div class="modal hidden" id="role-modal">
+            <div class="overlay" onclick="hideRoleModal()"></div>
+            <form>
+            </form>
+        </div>
+        <script src="/js/app.js"></script>
+    </body>
+</html>

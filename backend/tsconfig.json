@@ -1,0 +1,23 @@
+{
+   "compilerOptions": {
+      "target": "es6",
+      "module": "commonjs",
+      "moduleResolution": "node",
+      "outDir": "./dist",
+      "rootDir": "./src",
+      "strict": true,
+      "esModuleInterop": true,
+      "forceConsistentCasingInFileNames": true,
+      "skipLibCheck": true,
+      "emitDecoratorMetadata": true,
+      "experimentalDecorators": true,
+      "sourceMap": true
+   },
+   "include": [
+     "src/**/*"                                // Include all files in the src folder
+   ],
+   "exclude": [
+     "node_modules",                           // Exclude the node_modules directory
+     "**/*.spec.ts"                            // Exclude test files
+   ]
+}

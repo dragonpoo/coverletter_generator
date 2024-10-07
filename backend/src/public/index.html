@@ -1,0 +1,1661 @@
+<!DOCTYPE html>
+<!-- saved from url=(0029)https://31e180b8.limecube.co/ -->
+<html lang="en">
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+    <!--
+        ++++++++++++++++++++++++++++++++
+        Site Powered by Limecube
+        https://www.limecube.co
+        ++++++++++++++++++++++++++++++++
+    -->
+
+    <!--qms_push_show.head_tag_top-->
+
+
+    <link rel="canonical" href="/">
+
+    <title>Begin Trust</title>
+    <meta name="description" content="">
+
+    <meta name="HandheldFriendly" content="True">
+    <meta name="MobileOptimized" content="320">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=6.0">
+
+    <script type="text/javascript">
+        /*! onloadCSS. (onload callback for loadCSS) [c]2017 Filament Group, Inc. MIT License */
+        /* global navigator */
+        /* exported onloadCSS */
+        function onloadCSS(ss, callback) {
+            var called;
+            function newcb() {
+                if (!called && callback) {
+                    called = true;
+                    callback.call(ss);
+                }
+            }
+            if (ss.addEventListener) {
+                ss.addEventListener("load", newcb);
+            }
+            if (ss.attachEvent) {
+                ss.attachEvent("onload", newcb);
+            }
+
+            // This code is for browsers that don’t support onload
+            // No support for onload (it'll bind but never fire):
+            //	* Android 4.3 (Samsung Galaxy S4, Browserstack)
+            //	* Android 4.2 Browser (Samsung Galaxy SIII Mini GT-I8200L)
+            //	* Android 2.3 (Pantech Burst P9070)
+
+            // Weak inference targets Android < 4.4
+            if ("isApplicationInstalled" in navigator && "onloadcssdefined" in ss) {
+                ss.onloadcssdefined(newcb);
+            }
+        }
+
+        /*! loadCSS. [c]2017 Filament Group, Inc. MIT License */
+        /* This file is meant as a standalone workflow for
+        - testing support for link[rel=preload]
+        - enabling async CSS loading in browsers that do not support rel=preload
+        - applying rel preload css once loaded, whether supported or not.
+        */
+        (function (w) {
+            "use strict";
+            // rel=preload support test
+            if (!w.loadCSS) {
+                w.loadCSS = function () { };
+            }
+            // define on the loadCSS obj
+            var rp = loadCSS.relpreload = {};
+            // rel=preload feature support test
+            // runs once and returns a function for compat purposes
+            rp.support = (function () {
+                var ret;
+                try {
+                    ret = w.document.createElement("link").relList.supports("preload");
+                } catch (e) {
+                    ret = false;
+                }
+                return function () {
+                    return ret;
+                };
+            })();
+
+            // if preload isn't supported, get an asynchronous load by using a non-matching media attribute
+            // then change that media back to its intended value on load
+            rp.bindMediaToggle = function (link) {
+                // remember existing media attr for ultimate state, or default to 'all'
+                var finalMedia = link.media || "all";
+
+                function enableStylesheet() {
+                    link.media = finalMedia;
+                }
+
+                // bind load handlers to enable media
+                if (link.addEventListener) {
+                    link.addEventListener("load", enableStylesheet);
+                } else if (link.attachEvent) {
+                    link.attachEvent("onload", enableStylesheet);
+                }
+
+                // Set rel and non-applicable media type to start an async request
+                // note: timeout allows this to happen async to let rendering continue in IE
+                setTimeout(function () {
+                    link.rel = "stylesheet";
+                    link.media = "only x";
+                });
+                // also enable media after 3 seconds,
+                // which will catch very old browsers (android 2.x, old firefox) that don't support onload on link
+                setTimeout(enableStylesheet, 3000);
+            };
+
+            // loop through link elements in DOM
+            rp.poly = function () {
+                // double check this to prevent external calls from running
+                if (rp.support()) {
+                    return;
+                }
+                var links = w.document.getElementsByTagName("link");
+                for (var i = 0; i < links.length; i++) {
+                    var link = links[i];
+                    // qualify links to those with rel=preload and as=style attrs
+                    if (link.rel === "preload" && link.getAttribute("as") === "style" && !link.getAttribute("data-loadcss")) {
+                        // prevent rerunning on link
+                        link.setAttribute("data-loadcss", true);
+                        // bind listeners to toggle media back
+                        rp.bindMediaToggle(link);
+                    }
+                }
+            };
+
+            // if unsupported, run the polyfill
+            if (!rp.support()) {
+                // run once at least
+                rp.poly();
+
+                // rerun poly on an interval until onload
+                var run = w.setInterval(rp.poly, 500);
+                if (w.addEventListener) {
+                    w.addEventListener("load", function () {
+                        rp.poly();
+                        w.clearInterval(run);
+                    });
+                } else if (w.attachEvent) {
+                    w.attachEvent("onload", function () {
+                        rp.poly();
+                        w.clearInterval(run);
+                    });
+                }
+            }
+
+
+            // commonjs
+            if (typeof exports !== "undefined") {
+                exports.loadCSS = loadCSS;
+            }
+            else {
+                w.loadCSS = loadCSS;
+            }
+        }(typeof global !== "undefined" ? global : this));
+
+        /*! loadCSS. [c]2017 Filament Group, Inc. MIT License */
+        (function (w) {
+            "use strict";
+            /* exported loadCSS */
+            var loadCSS = function (href, before, media, attributes) {
+                // Arguments explained:
+                // `href` [REQUIRED] is the URL for your CSS file.
+                // `before` [OPTIONAL] is the element the script should use as a reference for injecting our stylesheet <link> before
+                // By default, loadCSS attempts to inject the link after the last stylesheet or script in the DOM. However, you might desire a more specific location in your document.
+                // `media` [OPTIONAL] is the media type or query of the stylesheet. By default it will be 'all'
+                // `attributes` [OPTIONAL] is the Object of attribute name/attribute value pairs to set on the stylesheet's DOM Element.
+                var doc = w.document;
+                var ss = doc.createElement("link");
+                var ref;
+                if (before) {
+                    ref = before;
+                }
+                else {
+                    var refs = (doc.body || doc.getElementsByTagName("head")[0]).childNodes;
+                    ref = refs[refs.length - 1];
+                }
+
+                var sheets = doc.styleSheets;
+                // Set any of the provided attributes to the stylesheet DOM Element.
+                if (attributes) {
+                    for (var attributeName in attributes) {
+                        if (attributes.hasOwnProperty(attributeName)) {
+                            ss.setAttribute(attributeName, attributes[attributeName]);
+                        }
+                    }
+                }
+                ss.rel = "stylesheet";
+                ss.href = href;
+                // temporarily set media to something inapplicable to ensure it'll fetch without blocking render
+                ss.media = "only x";
+
+                // wait until body is defined before injecting link. This ensures a non-blocking load in IE11.
+                function ready(cb) {
+                    if (doc.body) {
+                        return cb();
+                    }
+                    setTimeout(function () {
+                        ready(cb);
+                    });
+                }
+                // Inject link
+                // Note: the ternary preserves the existing behavior of "before" argument, but we could choose to change the argument to "after" in a later release and standardize on ref.nextSibling for all refs
+                // Note: `insertBefore` is used instead of `appendChild`, for safety re: http://www.paulirish.com/2011/surefire-dom-element-insertion/
+                ready(function () {
+                    ref.parentNode.insertBefore(ss, (before ? ref : ref.nextSibling));
+                });
+                // A method (exposed on return object for external use) that mimics onload by polling document.styleSheets until it includes the new sheet.
+                var onloadcssdefined = function (cb) {
+                    var resolvedHref = ss.href;
+                    var i = sheets.length;
+                    while (i--) {
+                        if (sheets[i].href === resolvedHref) {
+                            return cb();
+                        }
+                    }
+                    setTimeout(function () {
+                        onloadcssdefined(cb);
+                    });
+                };
+
+                function loadCB() {
+                    if (ss.addEventListener) {
+                        ss.removeEventListener("load", loadCB);
+                    }
+                    ss.media = media || "all";
+                }
+
+                // once loaded, set link's media back to `all` so that the stylesheet applies once it loads
+                if (ss.addEventListener) {
+                    ss.addEventListener("load", loadCB);
+                }
+                ss.onloadcssdefined = onloadcssdefined;
+                onloadcssdefined(loadCB);
+                return ss;
+            };
+            // commonjs
+            if (typeof exports !== "undefined") {
+                exports.loadCSS = loadCSS;
+            }
+            else {
+                w.loadCSS = loadCSS;
+            }
+        }(typeof global !== "undefined" ? global : this));
+
+        var limecube_ready = false;
+        var limecube_style_editor_css_ready = false;
+
+        function domReady() {
+            setTimeout(function () {
+                if (!limecube_ready) {
+                    limecube_ready = true;
+
+                    if (document.body) {
+                        document.body.className += " loaded";
+                    } else {
+                        var bodyLoad = setInterval(function () {
+                            if (document.body) {
+                                document.body.className += " loaded";
+                                clearInterval(bodyLoad);
+                            }
+                        }, 500);
+                    }
+
+                    if (typeof $ !== 'undefined') {
+                        $("body").trigger("limecubeReady");
+                    } else {
+                        window.addEventListener("load", function (event) {
+                            if (typeof $ !== 'undefined') $("body").trigger("limecubeReady");
+                        });
+                    }
+                }
+            }, 500);
+        }
+
+        setTimeout(function () { domReady(); console.log('domReady by timeout'); }, 3000);
+
+        function styleEditorCssReady() {
+            limecube_style_editor_css_ready = true;
+        }
+    </script>
+
+
+    <meta property="og:title" content="Begin Trust">
+    <meta property="og:url" content="https://31e180b8.limecube.co/index">
+    <meta property="og:type" content="website">
+
+
+    <meta property="og:ttl" content="345600">
+    <meta property="og:description"
+        content="Find the Perfect Web Developer for Your ProjectBegin Trust - Your Trusted Source for Connecting Clients with Top Web Developers">
+
+    <meta name="twitter:card" content="summary">
+
+
+
+    <link rel="stylesheet" href="/css/defaults.css" onload="domReady();">
+
+    <link rel="stylesheet" as="style" href="/css/126638.css"
+        onload="this.onload=null;this.rel=&#39;stylesheet&#39;"><noscript>
+        <link rel="stylesheet" href="/pe_page_sections_css/126638.css?v=1699523181">
+    </noscript>
+
+    <link rel="stylesheet" href="/css/v2-header-standard.css" id="lc_header_section_css">
+    <link rel="stylesheet" href="/css/footer_standard.stylesheet.css" id="lc_footer_section_css">
+
+    <style id="module_css_441fe56f-a5a0-4af9-8b4f-abf89e1cda0f">
+        #lc-rct-441fe56f-a5a0-4af9-8b4f-abf89e1cda0f a.lc-button,
+        #lc-rct-441fe56f-a5a0-4af9-8b4f-abf89e1cda0f a.lc-button::before,
+        #lc-rct-441fe56f-a5a0-4af9-8b4f-abf89e1cda0f a.lc-button::after {
+            border-color: #ffffff;
+
+            background-color: inherit !important;
+            color: #ffffff;
+        }
+
+        #lc-rct-441fe56f-a5a0-4af9-8b4f-abf89e1cda0f a.lc-button>span {
+            color: #ffffff;
+        }
+
+        #lc-rct-441fe56f-a5a0-4af9-8b4f-abf89e1cda0f a.lc-button:hover {
+            background-color: #0d0e21 !important;
+            border-color: #0d0e21;
+
+            color: #0d0e21;
+        }
+
+        #lc-rct-441fe56f-a5a0-4af9-8b4f-abf89e1cda0f a.lc-button:hover>span {
+            color: #ffffff;
+        }
+    </style>
+    <style id="module_css_87c708f8-7982-4f43-a492-740f8aef9d05">
+        #lc-rct-87c708f8-7982-4f43-a492-740f8aef9d05 a.lc-button,
+        #lc-rct-87c708f8-7982-4f43-a492-740f8aef9d05 a.lc-button::before,
+        #lc-rct-87c708f8-7982-4f43-a492-740f8aef9d05 a.lc-button::after {
+            border-color: #5576f6;
+
+            background-color: #5576f6;
+            color: #ffffff;
+        }
+
+        #lc-rct-87c708f8-7982-4f43-a492-740f8aef9d05 a.lc-button>span {
+            color: #ffffff;
+        }
+
+        #lc-rct-87c708f8-7982-4f43-a492-740f8aef9d05 a.lc-button:hover {
+            background-color: #0d0e21 !important;
+            border-color: #0d0e21;
+
+            color: #0d0e21;
+        }
+
+        #lc-rct-87c708f8-7982-4f43-a492-740f8aef9d05 a.lc-button:hover>span {
+            color: #ffffff;
+        }
+    </style>
+    <style id="module_css_97f50eab-28e1-4ec2-8095-e622c6837748">
+        @media (max-width: 767px) {
+
+            #qms-box-module-97f50eab-28e1-4ec2-8095-e622c6837748.qms-box-module-layout-text-over-image .qms-box-module-item,
+            #qms-box-module-97f50eab-28e1-4ec2-8095-e622c6837748 .qms-box-module-item-image img {
+                height: 200px !important;
+            }
+        }
+
+
+
+        #lc-box-btn-lc-cb2f73d9-69ef-442a-8231-fbd0be1b25a2 a.lc-button,
+        #lc-box-btn-lc-cb2f73d9-69ef-442a-8231-fbd0be1b25a2 a.lc-button::before,
+        #lc-box-btn-lc-cb2f73d9-69ef-442a-8231-fbd0be1b25a2 a.lc-button::after {
+            border-color: #5576f6;
+
+            background-color: #5576f6;
+            color: #ffffff;
+        }
+
+        #lc-box-btn-lc-cb2f73d9-69ef-442a-8231-fbd0be1b25a2 a.lc-button>span {
+            color: #ffffff;
+        }
+
+        #lc-box-btn-lc-cb2f73d9-69ef-442a-8231-fbd0be1b25a2 a.lc-button:hover {
+            background-color: #0d0e21 !important;
+            border-color: #0d0e21;
+
+            color: #0d0e21;
+        }
+
+        #lc-box-btn-lc-cb2f73d9-69ef-442a-8231-fbd0be1b25a2 a.lc-button:hover>span {
+            color: #ffffff;
+        }
+
+
+
+        #lc-box-btn-lc-c8b40b40-06e7-431e-bf2e-6988471158f1 a.lc-button,
+        #lc-box-btn-lc-c8b40b40-06e7-431e-bf2e-6988471158f1 a.lc-button::before,
+        #lc-box-btn-lc-c8b40b40-06e7-431e-bf2e-6988471158f1 a.lc-button::after {
+            border-color: #5576f6;
+
+            background-color: #5576f6;
+            color: #ffffff;
+        }
+
+        #lc-box-btn-lc-c8b40b40-06e7-431e-bf2e-6988471158f1 a.lc-button>span {
+            color: #ffffff;
+        }
+
+        #lc-box-btn-lc-c8b40b40-06e7-431e-bf2e-6988471158f1 a.lc-button:hover {
+            background-color: #0d0e21 !important;
+            border-color: #0d0e21;
+
+            color: #0d0e21;
+        }
+
+        #lc-box-btn-lc-c8b40b40-06e7-431e-bf2e-6988471158f1 a.lc-button:hover>span {
+            color: #ffffff;
+        }
+    </style>
+    <style id="module_css_728d373e-6b71-45cf-bb63-0e709d47c9cd">
+        #lc-rct-728d373e-6b71-45cf-bb63-0e709d47c9cd a.lc-button,
+        #lc-rct-728d373e-6b71-45cf-bb63-0e709d47c9cd a.lc-button::before,
+        #lc-rct-728d373e-6b71-45cf-bb63-0e709d47c9cd a.lc-button::after {
+            border-color: #ffffff;
+
+            background-color: inherit !important;
+            color: #ffffff;
+        }
+
+        #lc-rct-728d373e-6b71-45cf-bb63-0e709d47c9cd a.lc-button>span {
+            color: #ffffff;
+        }
+
+        #lc-rct-728d373e-6b71-45cf-bb63-0e709d47c9cd a.lc-button:hover {
+            background-color: #0d0e21 !important;
+            border-color: #0d0e21;
+
+            color: #0d0e21;
+        }
+
+        #lc-rct-728d373e-6b71-45cf-bb63-0e709d47c9cd a.lc-button:hover>span {
+            color: #ffffff;
+        }
+    </style>
+    <style id="module_css_8ff35dfe-1038-4160-94e7-74fc350dce48">
+        #lc-rct-8ff35dfe-1038-4160-94e7-74fc350dce48 a.lc-button,
+        #lc-rct-8ff35dfe-1038-4160-94e7-74fc350dce48 a.lc-button::before,
+        #lc-rct-8ff35dfe-1038-4160-94e7-74fc350dce48 a.lc-button::after {
+            border-color: #5576f6;
+
+            background-color: #5576f6;
+            color: #ffffff;
+        }
+
+        #lc-rct-8ff35dfe-1038-4160-94e7-74fc350dce48 a.lc-button>span {
+            color: #ffffff;
+        }
+
+        #lc-rct-8ff35dfe-1038-4160-94e7-74fc350dce48 a.lc-button:hover {
+            background-color: #0d0e21 !important;
+            border-color: #0d0e21;
+
+            color: #0d0e21;
+        }
+
+        #lc-rct-8ff35dfe-1038-4160-94e7-74fc350dce48 a.lc-button:hover>span {
+            color: #ffffff;
+        }
+    </style>
+    <style id="module_css_f17ea919-52e7-45e7-be4d-1d3192fab48f"></style>
+
+
+    <link rel="stylesheet" as="style" href="/css/checkbox-x.min.css"
+        onload="this.onload=null;this.rel=&#39;stylesheet&#39;"><noscript>
+        <link rel="stylesheet" href="/css/checkbox-x.min.css">
+    </noscript>
+
+    <link rel="stylesheet" as="style" href="/css/bootstrap-datetimepicker.min.css"
+        onload="this.onload=null;this.rel=&#39;stylesheet&#39;"><noscript>
+        <link rel="stylesheet" href="/js/bootstrapdatepicker/bootstrap-datetimepicker.min.css">
+    </noscript>
+
+    <link rel="stylesheet" as="style" href="/css/fileinput.min.css"
+        onload="this.onload=null;this.rel=&#39;stylesheet&#39;"><noscript>
+        <link rel="stylesheet" href="/css/fileinput.min.css">
+    </noscript>
+
+
+    <!-- loader for site-->
+    <style>
+        :root {
+            --theme-color-1: #ffffff;
+            --theme-color-2: #dfe5f6;
+            --theme-color-3: #5576f6;
+            --theme-color-4: #0d0e21;
+            --theme-color-5: #ffffff;
+        }
+
+        #owlreporter-preloader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1000;
+            background: #fff;
+            -webkit-transition: all .3s ease-out;
+            transition: all .3s ease-out;
+        }
+
+        .loaded #owlreporter-preloader {
+            visibility: hidden;
+            opacity: 0;
+        }
+
+        .no-js #owlreporter-preloader {
+            display: none
+        }
+
+        .no-js h1 {
+            color: #222
+        }
+
+        #site-loading-gif {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            margin: -125px 0px 0px -125px;
+        }
+
+        .container_preloader {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background-color: #ffffff;
+        }
+
+        .loader {
+            max-width: 80px;
+            width: 100%;
+            height: auto;
+            stroke-linecap: round;
+        }
+
+        circle {
+            fill: none;
+            stroke-width: 7;
+            animation-name: preloader;
+            animation-duration: 3s;
+            animation-iteration-count: infinite;
+            animation-timing-function: ease-in-out;
+            transform-origin: 170px 170px;
+            will-change: transform;
+        }
+
+        circle:nth-of-type(1) {
+            stroke-dasharray: 550px;
+            webkit-animation-delay: -0.15s;
+            animation-delay: -0.15s;
+        }
+
+        circle:nth-of-type(2) {
+            stroke-dasharray: 500px;
+            webkit-animation-delay: -0.3s;
+            animation-delay: -0.3s;
+        }
+
+        circle:nth-of-type(3) {
+            stroke-dasharray: 450px;
+            webkit-animation-delay: -0.4s;
+            animation-delay: -0.4s;
+        }
+
+        circle:nth-of-type(4) {
+            stroke-dasharray: 300px;
+            webkit-animation-delay: -0.5s;
+            animation-delay: -0.5s;
+        }
+
+        @keyframes preloader {
+            50% {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
+
+
+
+
+
+
+
+
+
+
+    <link rel="preload" href="https://31e180b8.limecube.co/css/fonts/fontawesome-webfont.woff2?v=10.1.0.12" as="font"
+        crossorigin="">
+    <link rel="preload" href="https://31e180b8.limecube.co/css/fonts/bootstrap/glyphicons-halflings-regular.woff2"
+        as="font" crossorigin="">
+    <!--qms_push_show.head_tag-->
+
+    <link rel="stylesheet" as="style" href="/css/css.css"
+        onload="this.onload=null;this.rel=&#39;stylesheet&#39;"><noscript>
+        <link rel="stylesheet"
+            href="https://fonts.googleapis.com/css?family=Poppins:100,100i,200,200i,300,300i,400,400i,500,500i,600,600i,700,700i,800,800i,900,900i&display=swap">
+    </noscript>
+    <link rel="stylesheet" as="style" href="/css/css(1).css"
+        onload="this.onload=null;this.rel=&#39;stylesheet&#39;"><noscript>
+        <link rel="stylesheet"
+            href="https://fonts.googleapis.com/css?family=Playfair+Display:400,400i,700,700i,900,900i&display=swap">
+    </noscript>
+    <link rel="stylesheet" as="style" href="/css/css(2).css"
+        onload="this.onload=null;this.rel=&#39;stylesheet&#39;"><noscript>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Heebo:300,500,900&display=swap">
+    </noscript>
+    <link rel="stylesheet" as="style" href="/css/css2.css"
+        onload="this.onload=null;this.rel=&#39;stylesheet&#39;"><noscript>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap">
+    </noscript>
+    <link rel="stylesheet" as="style" href="/css/css.css"
+        onload="this.onload=null;this.rel=&#39;stylesheet&#39;"><noscript>
+        <link rel="stylesheet"
+            href="https://fonts.googleapis.com/css?family=Poppins:100,100i,200,200i,300,300i,400,400i,500,500i,600,600i,700,700i,800,800i,900,900i&display=swap">
+    </noscript>
+
+    <!-- Custom styles for this template -->
+    <link rel="stylesheet" as="style" href="/css/index.css"
+        onload="this.onload=null;this.rel=&#39;stylesheet&#39;"><noscript>
+        <link rel="stylesheet" href="/components/page_editor/templates/themes/ai/css/index.css">
+    </noscript>
+    <link rel="stylesheet" as="style" href="/css/style-user.css"
+        onload="this.onload=null;this.rel=&#39;stylesheet&#39;"><noscript>
+        <link rel="stylesheet" href="/components/page_editor/templates/themes/ai/css/style-user.css">
+    </noscript>
+
+
+
+
+
+
+    <link rel="stylesheet" as="style" href="/css/1699523231.css"
+        onload="styleEditorCssReady();this.onload=null;this.rel=&#39;stylesheet&#39;"><noscript>
+        <link rel="stylesheet" href="/pe_style_editor_css/1699523231">
+    </noscript>
+
+    <style type="text/css">
+    </style>
+
+    <style type="text/css">
+        @font-face {
+            font-weight: 400;
+            font-style: normal;
+            font-family: circular;
+
+            src: url('chrome-extension://liecbddmkiiihnedobmlmillhodjkdmb/fonts/CircularXXWeb-Book.woff2') format('woff2');
+        }
+
+        @font-face {
+            font-weight: 700;
+            font-style: normal;
+            font-family: circular;
+
+            src: url('chrome-extension://liecbddmkiiihnedobmlmillhodjkdmb/fonts/CircularXXWeb-Bold.woff2') format('woff2');
+        }
+    </style>
+</head>
+
+<body class=" lc-client lc-page-background-size-full-width lc-page-background-repeat-no-repeat loaded"
+    data-aos-section="fade" data-aos-direction-section="InUp">
+
+    <!--qms_push_show.body_tag_top-->
+
+
+
+    <div style="z-index:100000" id="owlreporter-preloader">
+        <div class="container_preloader">
+            <svg class="loader" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 340 340">
+                <circle cx="170" cy="170" r="160" stroke="#9dd16d"></circle>
+                <circle cx="170" cy="170" r="135" stroke="#8faaee"></circle>
+                <circle cx="170" cy="170" r="110" stroke="#b98fee"></circle>
+                <circle cx="170" cy="170" r="85" stroke="#f28ec2"></circle>
+            </svg>
+        </div>
+    </div>
+
+
+
+
+
+    <header id="header">
+
+        <div class="lc-sections-container lc-sections-header">
+
+
+            <div id="lc-fd7c6a7d-a7a1-4547-9a1f-c376234800dc" class="lc-section-wrapper">
+                <div class="lc-section-content lc-section-padding-top-none lc-section-padding-bottom-none">
+                    <nav class="navbar header-standard">
+                        <div class="container-fluid">
+                            <div class="navbar-header">
+
+                                <a class="navbar-brand navb logo-text" href="/"
+                                    itemprop="url">
+                                    <span class="logo">
+                                        <span itemprop="name">Begin Trust</span>
+                                    </span>
+                                    <span class="button-in-anchor-wrapper">
+                                        <span class="pe-module-menu pe-main-menu">
+                                            <span class="button-in-anchor edit-btn"></span>
+                                            <span style="display: none" class="button-in-anchor img-tui-editor"
+                                                data-logo-image=""></span>
+                                        </span>
+                                    </span>
+                                </a>
+
+                                <a href="/contact.html"
+                                    onclick="ga_button_clicked(this, &quot;mobileHeader&quot;, &quot;click&quot;, &quot;CTA&quot;, &quot;&quot;)"
+                                    class="lc-mobile-phone-icon pull-right visible-xs-inline-block"><i
+                                        class="fa fa-envelope-o" aria-hidden="true"></i></a>
+
+                                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar"
+                                    aria-label="navigation bar toggle">
+                                    <span class="icon-bar"></span>
+                                    <span class="icon-bar"></span>
+                                    <span class="icon-bar"></span>
+                                </button>
+                            </div>
+                            <div class="navbar-collapse collapse" id="navbar">
+                                <ul id="navbar_menu_tree" class="nav navbar-nav  navbar-right">
+                                    <li class="lc-menu-type-root lc-nav-active">
+                                        <a href="/">Home</a>
+                                    </li>
+                                    <li class="lc-menu-type-page">
+                                        <a href="/about.html">About</a>
+                                    </li>
+                                    <li class="lc-menu-type-page">
+                                        <a href="/what-we-offer.html">What we offer</a>
+                                    </li>
+                                    <li class="lc-menu-type-page">
+                                        <a href="/contact.html">Contact</a>
+                                    </li>
+
+                                </ul>
+
+
+                            </div>
+                            <div class="navbar-text lc-header-custom-text"></div>
+                            <div id="qms-btn-header-cta"
+                                class="lc-header-cta-button lc-button-module lc-button-alignment-center ms-3 me-2">
+                                <a href="/contact.html"
+                                    class="lc-button lc-button-shape-square lc-button-style-solid lc-button-size-small ">
+                                    <span>Get in touch</span>
+                                </a>
+                            </div>
+
+                        </div>
+                    </nav>
+
+                </div>
+                <div class="lc-section-overlay"></div>
+            </div>
+
+        </div>
+
+
+
+    </header>
+
+    <div id="content-wrapper">
+
+        <div class="lc-sections-container lc-sections-content">
+
+
+            <div id="lc-0674e144-ed18-4ca1-ab12-87c48be80f94" class="lc-section-wrapper">
+                <div class="lc-section-content lc-section-padding-top-xlarge lc-section-padding-bottom-xlarge">
+                    <!--Standard width 1 column-->
+                    <section class="content spacing-default">
+                        <div class="container">
+                            <div class="row">
+                                <div class="col-lg-12 col-sm-12">
+                                    <div class="qms-client-template-area">
+                                        <div class="qms-text-module qms-simple-text-module animated fadeInUp"
+                                            data-aos="fadeInUp">
+                                            <h1 style="text-align: center;">Find the Perfect Web Developer for Your
+                                                Project</h1>
+                                            <p style="text-align: center;">Begin Trust - Your Trusted Source for
+                                                Connecting Clients with Top Web Developers</p>
+                                        </div>
+                                        <div id="lc-rct-441fe56f-a5a0-4af9-8b4f-abf89e1cda0f"
+                                            class="lc-rct-wrapper lc-button-wrapper">
+                                            <div class="qms-button-new-module lc-button-module lc-button-alignment-center animated fadeInUp"
+                                                data-aos="fadeInUp"><a id="qms-btn-441fe56f-a5a0-4af9-8b4f-abf89e1cda0f"
+                                                    href="/"
+                                                    class="lc-button lc-button-shape-square lc-button-style-outline lc-button-size-medium lc-spacing-top-one lc-spacing-bottom-none lc-pe-inline-editable-field button--greip"
+                                                    target="_blank"><span><span>Contact us today</span></span></a></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                    <!--Standard width 1 column-->
+
+
+                </div>
+                <div class="lc-section-overlay"></div>
+            </div>
+
+
+
+            <div id="lc-1b49fa5b-36d5-469f-b3ed-45057abd285f" class="lc-section-wrapper">
+                <div class="lc-section-content lc-section-padding-top-large lc-section-padding-bottom-large">
+                    <!--Standard width 2 columns 6-6-medium-->
+                    <section class="content spacing-default-medium">
+                        <div class="container">
+                            <div class="row">
+                                <div class="col-lg-6  col-sm-6">
+                                    <div class="qms-client-template-area">
+                                        <div class="qms-text-module qms-simple-text-module animated fadeInUp"
+                                            data-aos="fadeInUp">
+                                            <h2>Welcome to Begin Trust</h2>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-6 col-sm-6">
+                                    <div class="qms-client-template-area">
+                                        <div class="qms-text-module qms-simple-text-module animated fadeInUp"
+                                            data-aos="fadeInUp">
+                                            <p>At Begin Trust, we understand the importance of finding the right web
+                                                developer for your project. Our platform connects clients with highly
+                                                skilled and reliable web developers who can bring your vision to life.
+                                                We take the guesswork out of hiring by providing a curated list of
+                                                trusted professionals who have been thoroughly vetted for their
+                                                expertise and experience.</p>
+                                        </div>
+                                        <div id="lc-rct-87c708f8-7982-4f43-a492-740f8aef9d05"
+                                            class="lc-rct-wrapper lc-button-wrapper">
+                                            <div class="qms-button-new-module lc-button-module lc-button-alignment-left animated fadeInUp"
+                                                data-aos="fadeInUp"><a id="qms-btn-87c708f8-7982-4f43-a492-740f8aef9d05"
+                                                    href="/"
+                                                    class="lc-button lc-button-shape-square lc-button-style-solid lc-button-size-medium lc-spacing-top-one lc-spacing-bottom-none lc-pe-inline-editable-field button--greip"
+                                                    target="_blank"><span><span>Contact us</span></span></a></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                    <!--/Standard width 2 columns 6-6-medium-->
+                </div>
+                <div class="lc-section-overlay"></div>
+            </div>
+
+
+
+            <div id="lc-e6c9a3f8-b108-4b69-b961-8636309e23bd" class="lc-section-wrapper" data-aos-section="fade"
+                data-aos-direction-section="InLeft">
+                <div class="lc-section-content lc-section-padding-top-large lc-section-padding-bottom-large">
+                    <!--Standard width 1 column-->
+                    <section class="content spacing-default">
+                        <div class="container">
+                            <div class="row">
+                                <div class="col-lg-12 col-sm-12">
+                                    <div class="qms-client-template-area">
+                                        <div id="lc-rct-97f50eab-28e1-4ec2-8095-e622c6837748"
+                                            class="lc-rct-wrapper lc-box-wrapper">
+                                            <div class="qms-box-module qms-box-module-margin-large animated fadeInLeft"
+                                                data-aos="fadeInLeft">
+                                                <div id="qms-box-module-97f50eab-28e1-4ec2-8095-e622c6837748"
+                                                    class="qms-box-module-items-wrap qms-box-module-layout-text-next-to-image qms-box-module-cols-1 qms-box-module-image-text-proportion-2 qms-box-module-image-position-alternate qms-box-module-text-vert-middle">
+                                                    <div
+                                                        class="qms-box-module-item qms-box-module-item-lc-cb2f73d9-69ef-442a-8231-fbd0be1b25a2">
+                                                        <div class="qms-box-module-item-image"
+                                                            data-img-src="root/pexels-images/1699522581.jpeg">
+                                                            <div>
+                                                                <picture>
+                                                                    <source type="image/webp"
+                                                                        data-srcset="
+                                            https://31e180b8.limecube.co?rm=irgc&amp;hash=31e180b8&amp;file=root%2Fpexels-images%2F1699522581.jpeg&amp;fit=rectangle&amp;w=320&amp;h=180&amp;type=webp 320w,
+                                            https://31e180b8.limecube.co?rm=irgc&amp;hash=31e180b8&amp;file=root%2Fpexels-images%2F1699522581.jpeg&amp;fit=rectangle&amp;w=480&amp;h=270&amp;type=webp 480w,
+                                            https://31e180b8.limecube.co?rm=irgc&amp;hash=31e180b8&amp;file=root%2Fpexels-images%2F1699522581.jpeg&amp;fit=rectangle&amp;w=768&amp;h=432&amp;type=webp 768w,
+                                            https://31e180b8.limecube.co?rm=irgc&amp;hash=31e180b8&amp;file=root%2Fpexels-images%2F1699522581.jpeg&amp;fit=rectangle&amp;w=1024&amp;h=576&amp;type=webp 1024w,
+                                            https://31e180b8.limecube.co?rm=irgc&amp;hash=31e180b8&amp;file=root%2Fpexels-images%2F1699522581.jpeg&amp;fit=rectangle&amp;w=1280&amp;h=720&amp;type=webp 1280w,
+                                            https://31e180b8.limecube.co?rm=irgc&amp;hash=31e180b8&amp;file=root%2Fpexels-images%2F1699522581.jpeg&amp;fit=rectangle&amp;w=1920&amp;h=1080&amp;type=webp 1920w">
+
+                                                                    <img itemprop="image" class=""
+                                                                        src="/img/thumb_pexels-images_1699522581_w1920_h1080_frectangle.jpeg"
+                                                                        srcset="
+                                            https://31e180b8.limecube.co?rm=irgc&amp;hash=31e180b8&amp;file=root%2Fpexels-images%2F1699522581.jpeg&amp;fit=rectangle&amp;w=320&amp;h=180 320w,
+                                            https://31e180b8.limecube.co?rm=irgc&amp;hash=31e180b8&amp;file=root%2Fpexels-images%2F1699522581.jpeg&amp;fit=rectangle&amp;w=480&amp;h=270 480w,
+                                            https://31e180b8.limecube.co?rm=irgc&amp;hash=31e180b8&amp;file=root%2Fpexels-images%2F1699522581.jpeg&amp;fit=rectangle&amp;w=768&amp;h=432 768w,
+                                            https://31e180b8.limecube.co?rm=irgc&amp;hash=31e180b8&amp;file=root%2Fpexels-images%2F1699522581.jpeg&amp;fit=rectangle&amp;w=1024&amp;h=576 1024w,
+                                            https://31e180b8.limecube.co?rm=irgc&amp;hash=31e180b8&amp;file=root%2Fpexels-images%2F1699522581.jpeg&amp;fit=rectangle&amp;w=1280&amp;h=720 1280w,
+                                            https://storage.googleapis.com/limecube-live-31e180b8/thumb%2Fpexels-images%2F1699522581_w1920_h1080_frectangle.jpeg 1920w"
+                                                                        content="https://storage.googleapis.com/limecube-live-31e180b8/thumb%2Fpexels-images%2F1699522581_w1920_h1080_frectangle.jpeg"
+                                                                        title="" alt="" height="400"
+                                                                        data-object-fit="1">
+                                                                </picture>
+                                                            </div>
+                                                            <div class="qms-box-overlay op04"></div>
+                                                        </div>
+                                                        <div
+                                                            class="qms-box-module-text-wrap qms-box-item-text-alignment-left">
+                                                            <div class="space-around vert-large hor-large">
+                                                                <h3 class="qms-box-module-item-title">Streamlined Hiring
+                                                                    Process</h3>
+                                                                <div class="qms-box-module-item-description">
+                                                                    <div
+                                                                        class="qms-box-module-item-description-content">
+                                                                        <p>We simplify the process of hiring a web
+                                                                            developer by providing a streamlined
+                                                                            platform that matches you with qualified
+                                                                            professionals based on your specific project
+                                                                            requirements.</p>
+                                                                    </div>
+                                                                </div>
+                                                                <div id="lc-box-btn-lc-cb2f73d9-69ef-442a-8231-fbd0be1b25a2"
+                                                                    class="qms-box-module-item-button"><a
+                                                                        href="/"
+                                                                        target="_blank"
+                                                                        class="lc-button lc-button-shape-square lc-button-style-solid lc-button-size-medium lc-spacing-top-one button--greip"><span><span>Find
+                                                                                out more</span></span></a></div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div
+                                                        class="qms-box-module-item qms-box-module-item-lc-c8b40b40-06e7-431e-bf2e-6988471158f1">
+                                                        <div class="qms-box-module-item-image"
+                                                            data-img-src="root/pexels-images/1699522582.jpeg">
+                                                            <div>
+                                                                <picture>
+                                                                    <source type="image/webp"
+                                                                        data-srcset="
+                                            https://31e180b8.limecube.co?rm=irgc&amp;hash=31e180b8&amp;file=root%2Fpexels-images%2F1699522582.jpeg&amp;fit=rectangle&amp;w=320&amp;h=180&amp;type=webp 320w,
+                                            https://31e180b8.limecube.co?rm=irgc&amp;hash=31e180b8&amp;file=root%2Fpexels-images%2F1699522582.jpeg&amp;fit=rectangle&amp;w=480&amp;h=270&amp;type=webp 480w,
+                                            https://31e180b8.limecube.co?rm=irgc&amp;hash=31e180b8&amp;file=root%2Fpexels-images%2F1699522582.jpeg&amp;fit=rectangle&amp;w=768&amp;h=432&amp;type=webp 768w,
+                                            https://31e180b8.limecube.co?rm=irgc&amp;hash=31e180b8&amp;file=root%2Fpexels-images%2F1699522582.jpeg&amp;fit=rectangle&amp;w=1024&amp;h=576&amp;type=webp 1024w,
+                                            https://31e180b8.limecube.co?rm=irgc&amp;hash=31e180b8&amp;file=root%2Fpexels-images%2F1699522582.jpeg&amp;fit=rectangle&amp;w=1280&amp;h=720&amp;type=webp 1280w,
+                                            https://31e180b8.limecube.co?rm=irgc&amp;hash=31e180b8&amp;file=root%2Fpexels-images%2F1699522582.jpeg&amp;fit=rectangle&amp;w=1920&amp;h=1080&amp;type=webp 1920w">
+
+                                                                    <img itemprop="image" class=""
+                                                                        src="/img/thumb_pexels-images_1699522582_w1920_h1080_frectangle.jpeg"
+                                                                        srcset="
+                                            https://31e180b8.limecube.co?rm=irgc&amp;hash=31e180b8&amp;file=root%2Fpexels-images%2F1699522582.jpeg&amp;fit=rectangle&amp;w=320&amp;h=180 320w,
+                                            https://31e180b8.limecube.co?rm=irgc&amp;hash=31e180b8&amp;file=root%2Fpexels-images%2F1699522582.jpeg&amp;fit=rectangle&amp;w=480&amp;h=270 480w,
+                                            https://31e180b8.limecube.co?rm=irgc&amp;hash=31e180b8&amp;file=root%2Fpexels-images%2F1699522582.jpeg&amp;fit=rectangle&amp;w=768&amp;h=432 768w,
+                                            https://31e180b8.limecube.co?rm=irgc&amp;hash=31e180b8&amp;file=root%2Fpexels-images%2F1699522582.jpeg&amp;fit=rectangle&amp;w=1024&amp;h=576 1024w,
+                                            https://31e180b8.limecube.co?rm=irgc&amp;hash=31e180b8&amp;file=root%2Fpexels-images%2F1699522582.jpeg&amp;fit=rectangle&amp;w=1280&amp;h=720 1280w,
+                                            https://storage.googleapis.com/limecube-live-31e180b8/thumb%2Fpexels-images%2F1699522582_w1920_h1080_frectangle.jpeg 1920w"
+                                                                        content="https://storage.googleapis.com/limecube-live-31e180b8/thumb%2Fpexels-images%2F1699522582_w1920_h1080_frectangle.jpeg"
+                                                                        title="" alt="" height="400"
+                                                                        data-object-fit="1">
+                                                                </picture>
+                                                            </div>
+                                                            <div class="qms-box-overlay op04"></div>
+                                                        </div>
+                                                        <div
+                                                            class="qms-box-module-text-wrap qms-box-item-text-alignment-left">
+                                                            <div class="space-around vert-large hor-large">
+                                                                <h3 class="qms-box-module-item-title">Expert Web
+                                                                    Developers</h3>
+                                                                <div class="qms-box-module-item-description">
+                                                                    <div
+                                                                        class="qms-box-module-item-description-content">
+                                                                        <p>Our network consists of top-notch web
+                                                                            developers who are experts in their field,
+                                                                            ensuring that you receive high-quality work
+                                                                            and exceptional results.</p>
+                                                                    </div>
+                                                                </div>
+                                                                <div id="lc-box-btn-lc-c8b40b40-06e7-431e-bf2e-6988471158f1"
+                                                                    class="qms-box-module-item-button"><a
+                                                                        href="/"
+                                                                        target="_blank"
+                                                                        class="lc-button lc-button-shape-square lc-button-style-solid lc-button-size-medium lc-spacing-top-one button--greip"><span><span>Find
+                                                                                out more</span></span></a></div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                    <!--Standard width 1 column-->
+
+
+                </div>
+                <div class="lc-section-overlay"></div>
+            </div>
+
+
+
+            <div id="lc-f02b51d1-df9e-43b5-9965-4db3c76bb4cc" class="lc-section-wrapper">
+                <div class="lc-section-content lc-section-padding-top-large lc-section-padding-bottom-large">
+                    <!--Standard width 2 columns 9-3-->
+                    <section class="content spacing-default">
+                        <div class="container">
+                            <div class="row">
+                                <div class="col-lg-9 col-sm-9">
+                                    <div class="qms-client-template-area">
+                                        <div class="qms-text-module qms-simple-text-module animated fadeInUp"
+                                            data-aos="fadeInUp">
+                                            <h2>Take Your Website to New Heights with Begin Trust</h2>
+                                            <p>Our platform connects you with talented web developers who can transform
+                                                your website into a powerful tool that drives business growth and
+                                                enhances user experience.</p>
+                                        </div>
+                                        <div id="lc-rct-728d373e-6b71-45cf-bb63-0e709d47c9cd"
+                                            class="lc-rct-wrapper lc-button-wrapper">
+                                            <div class="qms-button-new-module lc-button-module lc-button-alignment-left animated fadeInUp"
+                                                data-aos="fadeInUp"><a id="qms-btn-728d373e-6b71-45cf-bb63-0e709d47c9cd"
+                                                    href="/"
+                                                    class="lc-button lc-button-shape-square lc-button-style-outline lc-button-size-medium lc-spacing-top-one lc-spacing-bottom-none lc-pe-inline-editable-field button--greip"
+                                                    target="_blank"><span><span>Contact us today</span></span></a></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-3 col-sm-3">
+
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                    <!--/Standard width 2 columns 9-3-->
+                </div>
+                <div class="lc-section-overlay"></div>
+            </div>
+
+
+
+            <div id="lc-412d6aa2-5fd4-44b7-aa0d-616a655d0627" class="lc-section-wrapper" data-aos-section="fade"
+                data-aos-direction-section="InLeft">
+                <div class="lc-section-content lc-section-padding-top-large lc-section-padding-bottom-large">
+                    <!--Standard width 2 columns 6-6-medium-->
+                    <section class="content spacing-default-medium">
+                        <div class="container">
+                            <div class="row">
+                                <div class="col-lg-6  col-sm-6">
+                                    <div class="qms-client-template-area">
+                                        <div class="qms-text-module qms-simple-text-module animated fadeInLeft"
+                                            data-aos="fadeInLeft">
+                                            <h2>Why us?</h2>
+                                            <p>At Begin Trust, we pride ourselves on being more than just a platform -
+                                                we're your trusted partner in finding the right web developer for your
+                                                project. With our extensive network of highly skilled professionals,
+                                                personalized support, and streamlined hiring process, we ensure that you
+                                                have access to the best talent in the industry. Contact us today to get
+                                                started on your web development journey. Call us on +1-434-471-4249.</p>
+                                        </div>
+                                        <div id="lc-rct-8ff35dfe-1038-4160-94e7-74fc350dce48"
+                                            class="lc-rct-wrapper lc-button-wrapper">
+                                            <div class="qms-button-new-module lc-button-module lc-button-alignment-left animated fadeInLeft"
+                                                data-aos="fadeInLeft"><a
+                                                    id="qms-btn-8ff35dfe-1038-4160-94e7-74fc350dce48"
+                                                    href="/"
+                                                    class="lc-button lc-button-shape-square lc-button-style-solid lc-button-size-medium lc-spacing-top-one lc-spacing-bottom-none lc-pe-inline-editable-field button--greip"
+                                                    target="_blank"><span><span>Contact us</span></span></a></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-6 col-sm-6">
+                                    <div class="qms-client-template-area">
+                                        <div id="simple-image-module-f17ea919-52e7-45e7-be4d-1d3192fab48f"
+                                            class="qms-image-module lc-image-module-resizing-mode-dynamic animated fadeInRight"
+                                            data-aos="fadeInRight">
+                                            <div class="qms-image-content lc-hover-effect-zoom"
+                                                style="height: 595px; width: 100%;">
+                                                <picture>
+                                                    <source type="image/webp"
+                                                        data-srcset="
+                                                        https://31e180b8.limecube.co?rm=irgc&amp;hash=31e180b8&amp;file=root%2Fpexels-images%2F1699522577.jpeg&amp;fit=width&amp;w=320&amp;type=webp 320w,
+                                                        https://31e180b8.limecube.co?rm=irgc&amp;hash=31e180b8&amp;file=root%2Fpexels-images%2F1699522577.jpeg&amp;fit=width&amp;w=480&amp;type=webp 480w,
+                                                        https://31e180b8.limecube.co?rm=irgc&amp;hash=31e180b8&amp;file=root%2Fpexels-images%2F1699522577.jpeg&amp;fit=width&amp;w=768&amp;type=webp 768w,
+                                                        https://31e180b8.limecube.co?rm=irgc&amp;hash=31e180b8&amp;file=root%2Fpexels-images%2F1699522577.jpeg&amp;fit=width&amp;w=1024&amp;type=webp 1024w,
+                                                        https://31e180b8.limecube.co?rm=irgc&amp;hash=31e180b8&amp;file=root%2Fpexels-images%2F1699522577.jpeg&amp;fit=width&amp;w=1280&amp;type=webp 1280w,
+                                                        https://storage.googleapis.com/limecube-live-31e180b8/thumb%2Fpexels-images%2F1699522577_w1920_fwidth.webp 1920w"
+                                                        srcset="
+                                                        https://31e180b8.limecube.co?rm=irgc&amp;hash=31e180b8&amp;file=root%2Fpexels-images%2F1699522577.jpeg&amp;fit=width&amp;w=320&amp;type=webp 320w,
+                                                        https://31e180b8.limecube.co?rm=irgc&amp;hash=31e180b8&amp;file=root%2Fpexels-images%2F1699522577.jpeg&amp;fit=width&amp;w=480&amp;type=webp 480w,
+                                                        https://31e180b8.limecube.co?rm=irgc&amp;hash=31e180b8&amp;file=root%2Fpexels-images%2F1699522577.jpeg&amp;fit=width&amp;w=768&amp;type=webp 768w,
+                                                        https://31e180b8.limecube.co?rm=irgc&amp;hash=31e180b8&amp;file=root%2Fpexels-images%2F1699522577.jpeg&amp;fit=width&amp;w=1024&amp;type=webp 1024w,
+                                                        https://31e180b8.limecube.co?rm=irgc&amp;hash=31e180b8&amp;file=root%2Fpexels-images%2F1699522577.jpeg&amp;fit=width&amp;w=1280&amp;type=webp 1280w,
+                                                        https://storage.googleapis.com/limecube-live-31e180b8/thumb%2Fpexels-images%2F1699522577_w1920_fwidth.webp 1920w">
+
+                                                    <img itemprop="image" class=""
+                                                        data-src="https://storage.googleapis.com/limecube-live-31e180b8/root%2Fpexels-images%2F1699522577.jpeg"
+                                                        data-srcset="
+                                                        https://31e180b8.limecube.co?rm=irgc&amp;hash=31e180b8&amp;file=root%2Fpexels-images%2F1699522577.jpeg&amp;fit=width&amp;w=320 320w,
+                                                        https://31e180b8.limecube.co?rm=irgc&amp;hash=31e180b8&amp;file=root%2Fpexels-images%2F1699522577.jpeg&amp;fit=width&amp;w=480 480w,
+                                                        https://31e180b8.limecube.co?rm=irgc&amp;hash=31e180b8&amp;file=root%2Fpexels-images%2F1699522577.jpeg&amp;fit=width&amp;w=768 768w,
+                                                        https://31e180b8.limecube.co?rm=irgc&amp;hash=31e180b8&amp;file=root%2Fpexels-images%2F1699522577.jpeg&amp;fit=width&amp;w=1024 1024w,
+                                                        https://31e180b8.limecube.co?rm=irgc&amp;hash=31e180b8&amp;file=root%2Fpexels-images%2F1699522577.jpeg&amp;fit=width&amp;w=1280 1280w,
+                                                        https://31e180b8.limecube.co?rm=irgc&amp;hash=31e180b8&amp;file=root%2Fpexels-images%2F1699522577.jpeg&amp;fit=width&amp;w=1920 1920w"
+                                                        content="https://31e180b8.limecube.co?rm=irgc&amp;hash=31e180b8&amp;file=root%2Fpexels-images%2F1699522577.jpeg&amp;fit=width&amp;w=1920"
+                                                        title="" alt=""
+                                                        style="width: 520px; position: absolute; max-width: none; visibility: visible; height: 780px; left: 0px; top: -93px;"
+                                                        src="/img/root_pexels-images_1699522577.jpeg"
+                                                        srcset="
+                                                        https://31e180b8.limecube.co?rm=irgc&amp;hash=31e180b8&amp;file=root%2Fpexels-images%2F1699522577.jpeg&amp;fit=width&amp;w=320 320w,
+                                                        https://31e180b8.limecube.co?rm=irgc&amp;hash=31e180b8&amp;file=root%2Fpexels-images%2F1699522577.jpeg&amp;fit=width&amp;w=480 480w,
+                                                        https://31e180b8.limecube.co?rm=irgc&amp;hash=31e180b8&amp;file=root%2Fpexels-images%2F1699522577.jpeg&amp;fit=width&amp;w=768 768w,
+                                                        https://31e180b8.limecube.co?rm=irgc&amp;hash=31e180b8&amp;file=root%2Fpexels-images%2F1699522577.jpeg&amp;fit=width&amp;w=1024 1024w,
+                                                        https://31e180b8.limecube.co?rm=irgc&amp;hash=31e180b8&amp;file=root%2Fpexels-images%2F1699522577.jpeg&amp;fit=width&amp;w=1280 1280w,
+                                                        https://31e180b8.limecube.co?rm=irgc&amp;hash=31e180b8&amp;file=root%2Fpexels-images%2F1699522577.jpeg&amp;fit=width&amp;w=1920 1920w">
+                                                </picture>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                    <!--/Standard width 2 columns 6-6-medium-->
+                </div>
+                <div class="lc-section-overlay"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+    <footer id="footer">
+
+        <div class="lc-sections-container lc-sections-footer">
+
+
+            <div id="lc-270161f1-6730-47dd-a05f-d10e9c758945" class="lc-section-wrapper">
+                <div class="lc-section-content lc-section-padding-top-medium lc-section-padding-bottom-medium">
+                    <!--Standard width 3 column footer testmenow-->
+                    <div class="container">
+                        <div class="row">
+                            <div class="col-md-4 col-sm-4">
+                                <div class="qms-client-template-area">
+                                    <div class="qms-text-module qms-simple-text-module animated fadeInUp"
+                                        data-aos="fadeInUp">
+                                        <h6>Quick Links</h6>
+                                        <p><a class="link-page" id="textLink-lg0ahheehm9qfgsmt2n"
+                                                href="/" title="">Home</a></p>
+                                        <p><a class="link-page" id="textLink-lg0ahr5x6k7fk6381fm"
+                                                href="/about.html" title="">About Us</a></p>
+                                        <p><a class="link-page" id="textLink-ljexifge2ouxes4mayq"
+                                                href="/what-we-offer.html" target=""
+                                                title="">What we offer</a></p>
+                                        <p><a class="link-page" id="textLink-lg0ai9mka0yk6xvshzl"
+                                                href="/contact.html" title="">Contact Us</a></p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4 col-sm-4">
+                                <div class="qms-client-template-area">
+                                    <div class="qms-text-module qms-simple-text-module animated fadeInUp"
+                                        data-aos="fadeInUp">
+                                        <h6>Contact</h6>
+                                        <p>Address: 675 Victoria Park Ave, Toronto</p>
+                                        <p>Email: <a class="link-page" href="mailto:support@begintrust.com">support@begintrust.com</a></p><p>Phone: <a class="link-page" id="textLink-ljf6fwzcgx030qirflu"
+                                                href="tel:+14344714249" title="">+1-434-471-4249</a></p>
+                                        <p>© All rights reserved</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4 col-sm-4">
+                                <div class="qms-client-template-area">
+                                    <div class="qms-text-module qms-simple-text-module animated fadeInUp"
+                                        data-aos="fadeInUp">
+                                        <h6>Subscribe</h6>
+                                    </div>
+                                    <div class="qms-form-module qms-simple-form-module animated fadeInUp"
+                                        id="qms-simple-form-48448ac8-344a-47b7-8fc2-c2df0644819d" data-aos="fadeInUp">
+
+                                        <form method="post" enctype="multipart/form-data"
+                                            action="https://31e180b8.limecube.co/" class="contactForm form-horizontal "
+                                            style="          " role="form" data-toggle="validator" novalidate="true">
+
+                                            <input type="hidden" name="action" value="save">
+                                            <input type="hidden" name="action_form_id"
+                                                value="48448ac8-344a-47b7-8fc2-c2df0644819d">
+
+
+                                            <div class="container-fluid">
+
+                                                <div class="row">
+                                                    <div class="col-sm-12">
+                                                        <div class="form-group required">
+                                                            <div class="col-sm-12">
+
+                                                                <input name="data[f_2]" value="" placeholder="Email *"
+                                                                    aria-label="Email" title="Email"
+                                                                    class="form-control" id="_f_2" required="">
+
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div class="row">
+
+                                                    <div class="col-sm-12">
+                                                        <div class="thepot">
+                                                            <input type="text" name="data[email_repeat]"
+                                                                aria-label="if You see this field do not change value inside it"
+                                                                value="honeypot@qmswebsitebuilder.com"
+                                                                title="if You see this field do not change value inside it"
+                                                                autocomplete="off">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col-sm-12">
+                                                        <input type="button"
+                                                            id="qms-simple-form-button-48448ac8-344a-47b7-8fc2-c2df0644819d"
+                                                            class="qms-button " aria-label="Submit" title="Submit"
+                                                            value="Submit" onclick="this.form.submit();">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row footer-copyright-padding">
+                            <div class="col-sm-12 margin-none-copyright-social">
+                                <div class="row">
+                                    <div class="col-sm-6 col-md-4 lc-copyright-left animated fadeInUp"
+                                        data-aos="fadeInUp">
+                                        <span>Powered by <a href="https://www.limecube.co/" target="_blank"
+                                                rel="noopener">Limecube</a></span>
+                                    </div>
+                                    <div class="col-sm-6 col-md-4 col-md-offset-4 margin-none-copyright-social animated fadeInUp"
+                                        data-aos="fadeInUp">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+                <div class="lc-section-overlay"></div>
+            </div>
+
+        </div>
+
+
+
+
+    </footer>
+
+
+
+
+
+
+
+
+    <script type="text/javascript" src="/js/scripts.single.bundle.js"></script>
+
+    <script type="text/javascript" src="/js/react.single.bundle.js"></script>
+
+    <script type="text/javascript">
+        var ajax_prefix = '/';
+        var theme_epoch = '2';
+        var domain_hash = '31e180b8';
+        var full_url = 'https://31e180b8.limecube.co';
+        var site_full_url = 'https://31e180b8.limecube.co';
+
+        var bucket_mask = 'limecube-live-';
+        var full_url = 'https://31e180b8.limecube.co';
+        var site_full_url = 'https://31e180b8.limecube.co';
+        var FILE_STORAGE_THUMBS = { "root\/pexels-images\/1699522581.jpeg": { "name": "1699522581.jpeg", "path": "root\/pexels-images\/1699522581.jpeg", "thumbs": { "thumb\/pexels-images\/1699522581_w1920_h1080_frectangle.jpeg": "thumb\/pexels-images\/1699522581_w1920_h1080_frectangle.jpeg", "thumb\/pexels-images\/1699522581_w1920_fwidth.webp": "thumb\/pexels-images\/1699522581_w1920_fwidth.webp" } }, "components\/page_editor\/css\/images\/no-icon.png": [], "root\/pexels-images\/1699522582.jpeg": { "name": "1699522582.jpeg", "path": "root\/pexels-images\/1699522582.jpeg", "thumbs": { "thumb\/pexels-images\/1699522582_w1920_h1080_frectangle.jpeg": "thumb\/pexels-images\/1699522582_w1920_h1080_frectangle.jpeg", "thumb\/pexels-images\/1699522582_w1920_fwidth.webp": "thumb\/pexels-images\/1699522582_w1920_fwidth.webp" } } };
+        var module_content_space_sizes_values = { "none": "none", "small": "one", "medium": "two", "large": "four", "xlarge": "six" };
+        var site_pages_urls = { "126638": { "title": "Home", "seo_url": "index" }, "126639": { "title": "What we offer", "seo_url": "what-we-offer" }, "126640": { "title": "About", "seo_url": "about" }, "126641": { "title": "Contact", "seo_url": "contact" }, "126642": { "title": "Thank You", "seo_url": "thank-you" }, "126643": { "title": "Search results", "seo_url": "search-results" }, "126644": { "title": "News", "seo_url": "news" }, "126645": { "title": "10 Essential Tips for Beginners", "seo_url": "10-essential-tips-for-beginners" }, "126646": { "title": "How to Overcome Challenges", "seo_url": "how-to-overcome-challenges" }, "126647": { "title": "Navigating Change and Uncertainty", "seo_url": "navigating-change-and-uncertainty" }, "126648": { "title": "Building Customer Relationships", "seo_url": "building-customer-relationships" }, "126649": { "title": "The Future of the industry", "seo_url": "the-future-of-the-industry" }, "126650": { "title": "The Impact of Technology", "seo_url": "the-impact-of-technology" }, "126651": { "title": "Coming Soon", "seo_url": "coming-soon" } };
+        var current_page_id = '126638';
+
+        var QMS_SITE_OPTIONS_CURRENT_COLOR_PALETTE = { "palette_preset_id": "48", "color_1": { "background_color": "#ffffff", "heading_color": "#0d0e21", "font_color": "#0d0e21", "links_color": "#5576f6" }, "color_2": { "background_color": "#dfe5f6", "heading_color": "#0d0e21", "font_color": "#0d0e21", "links_color": "#5576f6" }, "color_3": { "background_color": "#5576f6", "heading_color": "#ffffff", "font_color": "#ffffff", "links_color": "#ffffff" }, "color_4": { "background_color": "#0d0e21", "heading_color": "#ffffff", "font_color": "#ffffff", "links_color": "#ffffff" }, "color_5": { "background_color": "#ffffff", "heading_color": "#0d0e21", "font_color": "#0d0e21", "links_color": "#5576f6" } };
+
+        function is_animated(entry) {
+            return $(entry).hasClass('animated') && !$(entry).hasClass('animating');
+        }
+
+        function activate_animation(entry) {
+            var animation = $(entry).data('aos'),
+                anim_duration = 1000;
+
+            if ($(entry).hasClass('fast')) anim_duration = 800;
+            if ($(entry).hasClass('faster')) anim_duration = 500;
+            if ($(entry).hasClass('slow')) anim_duration = 2000;
+            if ($(entry).hasClass('slower')) anim_duration = 3000;
+
+            if (animation) {
+                $(entry).addClass(['animated', 'animating', animation].join(' '));
+                setTimeout(function () {
+                    $(entry).removeClass('animating');
+                    $(entry).trigger('lc-aos-completed');
+                }, anim_duration);
+            }
+        }
+
+        function deactivate_animation(entry) {
+            var animation = $(entry).data('aos');
+
+            if (animation) {
+                $(entry).removeClass(['animated', animation].join(' '));
+            }
+        }
+
+        function do_limecube_search(module_guid, results_page_url) {
+            var search_query = $("input[name=q]", "#qms-search-" + module_guid).val();
+            document.location.href = ajax_prefix + results_page_url + '/' + search_query;
+        }
+
+    </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <script type="text/javascript">
+        $(function () {
+            var lc_sections_js_interval = setInterval(function () {
+                if (limecube_ready && limecube_style_editor_css_ready) {
+                    clearInterval(lc_sections_js_interval);
+
+                    var first_section = $('.lc-sections-content > .lc-section-wrapper').first(),
+                        body = $('body'),
+                        notification_bar = $('.notification-bar');
+
+                    if (first_section.hasClass('lc-section-height100')) {
+                        function update_section_height() {
+                            var lc_body_padding_top;
+
+                            if (body.hasClass('fixed-header')) {
+                                lc_body_padding_top = body.css("padding-top");
+                            } else {
+                                let is_header_on_top = ($('#header .header-side').length === 0);
+                                lc_body_padding_top = is_header_on_top ? $('#header').outerHeight() : 0;
+                                if (notification_bar.length) {
+                                    lc_body_padding_top += notification_bar.outerHeight()
+                                }
+                                lc_body_padding_top += 'px';
+                            }
+
+                            first_section.css("min-height", "calc(100vh - " + lc_body_padding_top + ")");
+                        }
+
+                        update_section_height();
+
+                        $(window).on('resize', update_section_height);
+                        body.on('notification-bar-recalculated', update_section_height);
+                    }
+                }
+            }, 300);
+        });
+    </script>
+
+
+    <script src="/js/checkbox-x.js"></script>
+
+    <script src="/js/radiobutton-x.js"></script>
+
+    <script type="text/javascript" src="/js/bootstrap-datetimepicker.min.js"></script>
+
+    <script type="text/javascript" src="/js/validator.js"></script>
+
+    <script src="/js/uploader-x.min.js"></script>
+
+    <script type="text/javascript">
+        function fit_rectangle(element_size, container_size) {
+            let width, height,
+                elementRatio = element_size.width / element_size.height,
+                containerRatio = container_size.width / container_size.height;
+
+            if (containerRatio > elementRatio) {
+                width = container_size.width;
+                height = container_size.width / elementRatio;
+            } else {
+                height = container_size.height;
+                width = container_size.height * elementRatio;
+            }
+
+            return { width: width, height: height };
+        }
+        function is_img_loaded(img) {
+            return img.complete && img.naturalHeight !== 0;
+        }
+    </script>
+
+
+    <script type="text/javascript">
+        var dom_ready = false,
+            AOSObserver = null;
+
+        $(document).ready(function () {
+            $('.navbar a.dropdown-toggle').on('click', function (e) {
+                var $el = $(this);
+
+                if ($el.parent("li").hasClass('open')) {
+                    document.location.href = $el.attr('href');
+                } else {
+                    $('.nav li.open').not($el.parents("li")).removeClass("open");
+                    $el.parent("li").addClass('open');
+                }
+
+                if ($(window).width() > 1024) {
+                    document.location.href = $el.attr('href');
+                }
+                return false;
+            });
+
+            $('.navbar li.dropdown').on('mouseenter', function (e) {
+                if ($(window).width() > 1024) {
+                    $(this).children(".dropdown-menu").stop(true, true).fadeIn();
+                }
+            }).on('mouseleave', function (e) {
+                if ($(window).width() > 1024) {
+                    $(this).children(".dropdown-menu").stop(true, true).fadeOut();
+                }
+            });
+            dom_ready = true;
+        });
+
+        function not_in_header_and_unset_aos(value, el) {
+            if ($(el).closest('#header').length == 0) {
+                return true;
+            }
+            el.removeAttribute('data-aos');
+            return false;
+        }
+
+        function not_rct_module(value, el) {
+            return ($(el).closest('.lc-rct-wrapper').length === 0);
+        }
+
+        function observer_initialize() {
+            var entries = $('[data-aos]').filter(not_in_header_and_unset_aos).filter(not_rct_module);
+            if ("IntersectionObserver" in window) {
+                AOSObserver = new IntersectionObserver(
+                    function (entries, observer) {
+                        entries.forEach(function (entry) {
+                            if (entry.isIntersecting && !is_animated(entry.target)) {
+                                activate_animation(entry.target);
+                            }
+                        });
+                    },
+                    {
+                        rootMargin: '0% 50%',
+                        threshold: 0
+                    }
+                );
+
+                entries.each(function () {
+                    AOSObserver.observe($(this).get(0));
+                });
+            } else {
+                // Possibly fall back to a more compatible method here
+                let scrollAnimThrottleTimeout;
+
+                function scroll_animation() {
+                    if (scrollAnimThrottleTimeout) {
+                        clearTimeout(scrollAnimThrottleTimeout);
+                    }
+
+                    scrollAnimThrottleTimeout = setTimeout(function () {
+                        let scrollAnimNodes = document.querySelectorAll("[data-aos]");
+                        let scrollTop = window.pageYOffset;
+
+                        for (let i in scrollAnimNodes) {
+                            if (!scrollAnimNodes.hasOwnProperty(i)) continue;
+                            let node = scrollAnimNodes[i];
+                            if ($(node).offset().top < (window.innerHeight + scrollTop)) {
+                                if (!is_animated(node)) {
+                                    activate_animation(node);
+                                }
+                            }
+                        }
+
+                    }, 20);
+                }
+
+                document.addEventListener("scroll", scroll_animation);
+                window.addEventListener("resize", scroll_animation);
+                window.addEventListener("orientationChange", scroll_animation);
+
+                scroll_animation();
+            }
+        }
+
+        function scroll_animation_initialize() {
+            if (dom_ready) {
+                observer_initialize();
+            } else {
+                $(document).ready(function () {
+                    observer_initialize();
+                });
+            }
+        }
+
+        if (limecube_ready) {
+            scroll_animation_initialize()
+        } else {
+            $(document).on("limecubeReady", function () {
+                scroll_animation_initialize()
+            });
+        }
+
+
+
+        var limecube_notification_bar = false;
+
+        $(document).ready(function () {
+            var context = $('#qms-simple-form-48448ac8-344a-47b7-8fc2-c2df0644819d');
+            if ($(".form_date", context).datetimepicker != undefined) {
+                $(".form_date", context).datetimepicker({
+                    minView: 2,
+                    format: 'dd MM, yyyy',
+                    autoclose: true,
+                    todayBtn: true,
+                    pickerPosition: "bottom-left"
+                });
+            }
+            if ($(".form_datetime", context).datetimepicker != undefined) {
+                $(".form_datetime", context).datetimepicker({
+                    format: 'dd MM, yyyy hh:ii',
+                    autoclose: true,
+                    todayBtn: true,
+                    pickerPosition: "bottom-left"
+                });
+            }
+            if ($(".custom-radiobuttons-x", context).radiobuttonX != undefined) {
+                $(".custom-radiobuttons-x", context).radiobuttonX();
+            }
+            if ($(".custom-checkboxes-x", context).checkboxX != undefined) {
+                $(".custom-checkboxes-x", context).checkboxX({ threeState: false });
+            }
+            if ($(".custom-input-x", context).fileinput != undefined) {
+                $(".custom-input-x", context).each(function (i, o) {
+                    $(o).fileinput({
+                        initialCaption: o.hasAttribute('placeholder') ? o.getAttribute('placeholder') : '',
+                        showRemove: false, showUpload: false, showPreview: false,
+                        browseLabel: 'Browse', browseIcon: '', browseClass: 'btn btn-basic-gray form-control'
+                    });
+                });
+            }
+            $('.contactForm', context).validator();
+        });
+
+        function ga_button_new_clicked(button, et_category, et_action, et_label, et_value) {
+            if (window.gtag) {
+                gtag('event', et_action, {
+                    'event_category': et_category,
+                    'event_label': et_label,
+                    'event_value': et_value
+                });
+            } else if (typeof (ga) !== "undefined") {
+                ga('send', 'event', et_category, et_action, et_label, et_value);
+            }
+        }
+
+
+        $(document).ready(function () {
+            let cropData = {
+                'desktop': {
+                    imgW: 520,
+                    imgH: 780,
+                    imgX1: 0,
+                    imgY1: -93,
+                    cropW: 520,
+                    cropH: 595
+                },
+                'mobile': {
+                    imgW: 520,
+                    imgH: 780,
+                    imgX1: 0,
+                    imgY1: -93,
+                    cropW: 520,
+                    cropH: 595
+                }
+            };
+
+            function update_image_size() {
+                let wrap_width = $('.qms-image-content', "#simple-image-module-f17ea919-52e7-45e7-be4d-1d3192fab48f").outerWidth(),
+                    crop_data = (($(window).outerWidth() < 768) && 0) ? cropData.mobile : cropData.desktop,
+                    scale = wrap_width / crop_data.cropW,
+                    cropH = Math.floor(crop_data.cropH * scale),
+                    newImgW = Math.floor(crop_data.imgW * scale),
+                    newImgH = Math.floor(crop_data.imgH * scale),
+                    newImgX1 = Math.floor(crop_data.imgX1 * scale),
+                    newImgY1 = Math.floor(crop_data.imgY1 * scale);
+
+                $('.qms-image-content', "#simple-image-module-f17ea919-52e7-45e7-be4d-1d3192fab48f").css({
+                    'width': '100%',
+                    'height': cropH + 'px',
+                });
+
+                $(".qms-image-content img", "#simple-image-module-f17ea919-52e7-45e7-be4d-1d3192fab48f").css({
+                    'position': 'absolute',
+                    'max-width': 'none',
+                    'visibility': 'visible',
+                    'width': newImgW + 'px',
+                    'height': newImgH + 'px',
+                    'left': newImgX1 + 'px',
+                    'top': newImgY1 + 'px'
+                });
+            }
+
+            $(window).on('resize', function () {
+                if (is_img_loaded($('.qms-image-content img', "#simple-image-module-f17ea919-52e7-45e7-be4d-1d3192fab48f").get(0))) {
+                    update_image_size();
+                }
+            });
+            $('.qms-image-content img', "#simple-image-module-f17ea919-52e7-45e7-be4d-1d3192fab48f").on('load', function () {
+                if (limecube_ready) {
+                    update_image_size();
+                } else {
+                    $("body").on("limecubeReady", function () {
+                        update_image_size();
+                    });
+                }
+            });
+        });
+
+    </script>
+</body>
+
+</html>
