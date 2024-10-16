@@ -1,6 +1,8 @@
-node_modules
-package-lock.json
-user_data
-/uploads/screenshot
+.idea/
+.vscode/
+node_modules/
+dist/
+tmp/
+temp/
+.env
 .vercel
-chrome-win64
