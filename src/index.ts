@@ -3,11 +3,9 @@ import express from 'express';
 import path from 'path';
 import router from './api/index';
 import cookieParser from 'cookie-parser';
-import {createServer} from 'http';
 import "reflect-metadata";
 const compression = require('compression');
 const app = express();
-const server = createServer(app); //HTTP Server running Express app
 const port = 80;
 
 app.use(cookieParser());
@@ -21,6 +19,6 @@ app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 app.use(express.json());
 app.use(router);
 
-server.listen(port, () => {
+app.listen(port, () => {
 console.log(`Express app listening at http://localhost:${port}`)
 });
