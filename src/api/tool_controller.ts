@@ -6,8 +6,8 @@ import { randFromArr } from '../utils';
 import 'dotenv/config';
 
 const generateCoverletter = async (req: any, res: any) => {
-    const { name, desc, key, model, company, simple, englishlevel } = req.body;
-    let prompt = `Act as a coverletter writer on upwork platform.
+    const { name, desc, key, model, company, simple, englishlevel, prompt } = req.body;
+    let newprompt = prompt || `Act as a coverletter writer on upwork platform.
 Based on the project description from the input, write specific and short coverletter using emoticons and bullets and bold letters.
 Start with Dear Client.
 Don't include subject.
@@ -21,8 +21,8 @@ Let the client have confidence he will have the perfect result.
 Your full name is ${name}.
 Use fullname sometimes and firstname sometimes.
 Use wise saying wisely!
-After generating coverletter, convert it to ${englishlevel || 'basic'} english level.`;
-if(simple) prompt += "Respond with 3~4 sentences.";
+After generating coverletter, convert it to ${englishlevel || 'basic'} english level.
+${simple?'Respond with 3~4 sentences.':''}`;
     //
     //
     try {
@@ -32,7 +32,7 @@ if(simple) prompt += "Respond with 3~4 sentences.";
                 "messages": [
                     {
                         "role": "system",
-                        "content": prompt
+                        "content": newprompt
                     },
                     {
                         "role": "user",
