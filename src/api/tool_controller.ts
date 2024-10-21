@@ -1,7 +1,4 @@
 import axios from 'axios';
-import { AppDataSource } from '../data-source';
-import { Firstname } from '../entity/Firstname';
-import { Lastname } from '../entity/Lastname';
 import { randFromArr } from '../utils';
 import 'dotenv/config';
 
@@ -68,17 +65,4 @@ const getModels = async (req: any, res: any) => {
         res.status(500).json({ error: error.message });
     }
 }
-const generateName = async (req: any, res: any) => {
-    const { key } = req.body;
-    try {
-        const firstnames = await AppDataSource.getRepository(Firstname).find();
-        const lastnames = await AppDataSource.getRepository(Lastname).find();
-        const firstname = randFromArr(firstnames).firstname;
-        const lastname = randFromArr(lastnames).lastname;
-        res.json({fullname: `${firstname} ${lastname}`, firstname, lastname});
-    } catch(error: any) {
-        console.error('Error:', error);
-        res.status(500).json({ error: error.message });
-    }
-}
-export default {generateCoverletter, getModels, generateName}
+export default {generateCoverletter, getModels}
